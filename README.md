@@ -6,7 +6,7 @@ Sistema de imobiliária com backend em Spring Boot (API REST + JWT) e frontend e
 
 ```
 backend/   API Spring Boot (Java 17, MySQL, JWT, upload de fotos, e-mail)
-frontend/  Angular (em construção)
+frontend/  Angular (lista de imóveis; demais telas em construção)
 docs/      Anotações das aulas e enunciado do trabalho (docs/aulas.md)
 ```
 
@@ -47,9 +47,17 @@ mvn spring-boot:run                          # sobe em http://localhost:8080
 | `MAIL_PASSWORD` | senha SMTP do Mailgun (ou em mail.properties)   |
 | `JWT_SECRET`    | chave do JWT (mín. 32 caracteres; tem padrão só para dev) |
 
-## Frontend
+## Rodar o frontend
 
-Em construção.
+Angular 22 com componentes standalone. A URL da API fica em `frontend/src/environments/` (`apiUrl: http://localhost:8080`); o backend libera CORS para `http://localhost:4200`.
+
+```bash
+cd frontend
+npm install
+npx ng serve      # abre em http://localhost:4200 (o backend precisa estar rodando)
+```
+
+Tela atual: lista de imóveis (`GET /imoveis`) em cards. Login, filtros e ofertas ainda em construção.
 
 ---
 

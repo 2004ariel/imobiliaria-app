@@ -1,0 +1,30 @@
+<h2>Imóveis</h2>
+
+@if (carregando()) {
+  <p class="aviso">Carregando imóveis...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+} @else if (imoveis().length === 0) {
+  <p class="aviso">Nenhum imóvel encontrado.</p>
+} @else {
+  <div class="cards">
+    @for (imovel of imoveis(); track imovel.id) {
+      <div class="card">
+        <h3>{{ imovel.titulo }}</h3>
+        <p class="bairro">{{ imovel.bairro?.nome ?? 'Bairro não informado' }}</p>
+        <p class="preco">
+          @if (imovel.precoVenda) {
+            {{ imovel.precoVenda | currency: 'BRL' }}
+          } @else if (imovel.precoAluguel) {
+            {{ imovel.precoAluguel | currency: 'BRL' }} /mês
+          } @else {
+            Preço sob consulta
+          }
+        </p>
+        @if (imovel.finalidade) {
+          <span class="finalidade">{{ imovel.finalidade }}</span>
+        }
+      </div>
+    }
+  </div>
+}
