@@ -1,0 +1,3 @@
+# Copie para mail.properties (fora do git) e preencha com as credenciais SMTP do Mailgun
+MAIL_USERNAME=seu-usuario@sandboxXXXX.mailgun.org
+MAIL_PASSWORD=sua-senha-smtp
