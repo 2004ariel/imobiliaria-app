@@ -1,5 +1,5 @@
 # Imobiliária — Trabalho Final (Prog. Web IV, IFFar)
-Monorepo: backend/ (Spring Boot 4.1.1, Java 17, MySQL "restaurante", JWT com jjwt 0.12.6, porta 8080) e frontend/ (Angular, standalone components, porta 4200).
+Monorepo: backend/ (Spring Boot 4.1.1, Java 17, MySQL "restaurante", JWT com java-jwt 4.4.0, porta 8080) e frontend/ (Angular, standalone components, porta 4200).
 Enunciado e regras de negócio: docs/aulas.md, seção "Trabalho Final".
 
 ## Nível do código (importante)

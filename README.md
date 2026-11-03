@@ -33,6 +33,12 @@ cp mail.properties.example mail.properties   # preencher com as credenciais SMTP
 mvn spring-boot:run                          # sobe em http://localhost:8080
 ```
 
+## Autenticação (JWT com java-jwt 4.4.0)
+
+- Cadastro: `POST /public/register` — login: `POST /public/login` (devolve o token)
+- Demais rotas protegidas: header `Authorization: Bearer <token>`
+- Teste rápido com o backend rodando: `cd backend && ./testar-jwt.sh` (requer curl e jq)
+
 ## Variáveis de ambiente
 
 | Variável        | Uso                                           |
