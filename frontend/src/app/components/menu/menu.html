@@ -1,0 +1,20 @@
+<header class="menu">
+  <a routerLink="/" class="logo">Imobiliária</a>
+
+  <nav>
+    <a routerLink="/" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }">Vitrine</a>
+
+    @if (auth.usuario(); as usuario) {
+      @if (usuario.role === 'ADMIN') {
+        <a routerLink="/admin" routerLinkActive="ativo">Painel</a>
+      } @else {
+        <a routerLink="/cliente" routerLinkActive="ativo">Minha área</a>
+      }
+      <span class="usuario" title="{{ usuario.role }}">{{ usuario.email }}</span>
+      <button type="button" class="btn-sair" (click)="sair()">Sair</button>
+    } @else {
+      <a routerLink="/login" routerLinkActive="ativo">Entrar</a>
+      <a routerLink="/cadastro" routerLinkActive="ativo">Cadastrar</a>
+    }
+  </nav>
+</header>

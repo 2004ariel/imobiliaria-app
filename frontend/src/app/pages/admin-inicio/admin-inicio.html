@@ -1,0 +1,17 @@
+<h2>Painel admin</h2>
+<p>Bem-vindo(a), <strong>{{ auth.usuario()?.email }}</strong>.</p>
+
+<div class="cards-resumo">
+  <div class="card-resumo">
+    <span class="rotulo">Usuários cadastrados</span>
+    @if (carregando()) {
+      <span class="texto-suave">Carregando...</span>
+    } @else if (erro()) {
+      <span class="msg-erro-inline">{{ erro() }}</span>
+    } @else {
+      <span class="valor">{{ totalUsuarios() }}</span>
+    }
+  </div>
+</div>
+
+<p class="texto-suave">Em breve: gestão de imóveis, ofertas, contratos e usuários.</p>
