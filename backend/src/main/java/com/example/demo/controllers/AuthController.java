@@ -27,9 +27,11 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody RegisterDTO dto) {
+    public ResponseEntity<Map<String, Object>> register(@RequestBody RegisterDTO dto) {
         if (userService.register(dto) == null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build(); // email já cadastrado
+            // mesmo formato de erro do SecurityConfig, para o front mostrar a mensagem
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("status", 409, "error", "E-mail já cadastrado"));
         }
         return ResponseEntity.ok().build();
     }

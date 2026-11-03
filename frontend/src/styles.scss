@@ -1,6 +1,146 @@
 /* estilos globais */
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   background: #f5f5f5;
+  color: #222;
+}
+
+a {
+  color: #1f3a5f;
+}
+
+.texto-suave {
+  color: #666;
+}
+
+/* botões */
+.btn {
+  display: inline-block;
+  background: #1f3a5f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+
+  &:hover {
+    background: #2b4f80;
+  }
+
+  &:disabled {
+    background: #8a9bb3;
+    cursor: not-allowed;
+  }
+}
+
+/* formulários (login, cadastro) */
+.form-card {
+  max-width: 400px;
+  margin: 24px auto;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+
+  h2 {
+    margin-top: 0;
+  }
+
+  .btn {
+    width: 100%;
+  }
+}
+
+.campo {
+  margin-bottom: 16px;
+
+  label {
+    display: block;
+    margin-bottom: 4px;
+    font-weight: bold;
+  }
+
+  input {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+
+    &.ng-touched.ng-invalid {
+      border-color: #b00020;
+    }
+  }
+}
+
+.erro-campo {
+  display: block;
+  margin-top: 4px;
+  color: #b00020;
+}
+
+.rodape-form {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+/* mensagens */
+.msg {
+  padding: 10px 12px;
+  border-radius: 6px;
+}
+
+.msg-erro {
+  color: #b00020;
+  background: #fdecea;
+}
+
+.msg-aviso {
+  color: #7a5b00;
+  background: #fff4d6;
+}
+
+.msg-erro-inline {
+  color: #b00020;
+}
+
+/* páginas de aviso (acesso negado, não encontrado) */
+.pagina-aviso {
+  text-align: center;
+  padding: 48px 16px;
+}
+
+/* cards de resumo (painel admin) */
+.cards-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.card-resumo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+
+  .rotulo {
+    color: #666;
+  }
+
+  .valor {
+    font-size: 2rem;
+    font-weight: bold;
+  }
 }
