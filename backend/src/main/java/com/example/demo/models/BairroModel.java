@@ -7,6 +7,8 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,6 +43,8 @@ public class BairroModel implements Serializable {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    // evita o ciclo Bairro -> imoveis -> bairro na serialização JSON
+    @JsonIgnore
     @OneToMany(mappedBy = "bairro")
     private List<ImovelModel> imoveis;
 
