@@ -4,7 +4,7 @@ Enunciado e regras de negócio: docs/aulas.md, seção "Trabalho Final".
 
 ## Nível do código (importante)
 - Usar SÓ o que apareceu nas aulas: Controller → Service → Repository → Model, DTOs simples, Lombok, JPA/Hibernate, Pageable, Spring Security + JWT, upload de fotos, e-mail com JavaMailSender/Thymeleaf.
-- No Angular: componentes standalone, serviços com HttpClient, rotas, guards, interceptors e formulários simples. Nada de NgRx, signals avançados, RxJS complexo, microsserviços, cache, Docker, testes e2e, arquitetura hexagonal ou abstrações genéricas.
+- No Angular: componentes standalone, serviços com HttpClient, rotas, guards, interceptors e formulários simples. signal() básico pode (projeto zoneless); computed/effect/RxJS complexo só se necessário. Nada de NgRx, microsserviços, cache, Docker, testes e2e, arquitetura hexagonal ou abstrações genéricas.
 - Código simples e legível, nomes de domínio em português (Imovel, Oferta, Contrato). Seguir o padrão dos arquivos existentes.
 - Regra de negócio fica no Service (@Transactional), nunca no Controller nem no front.
 - Se algo precisar de recurso que não está nas aulas, escolher a alternativa mais simples e avisar.
