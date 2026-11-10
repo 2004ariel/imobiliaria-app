@@ -31,6 +31,7 @@ export interface Imovel {
   caracteristicas: string;
   tipoImovel: TipoImovel | null;
   bairro: Bairro | null;
+  fotoCapa: string | null; // nome do arquivo da capa (só vem na vitrine)
 }
 
 export interface FotoImovel {

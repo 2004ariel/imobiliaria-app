@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -80,6 +81,10 @@ public class ImovelModel implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private UserModel usuario;
+
+    // nome do arquivo da foto de capa (não é coluna; preenchido pelo service na vitrine)
+    @Transient
+    private String fotoCapa;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

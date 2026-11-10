@@ -78,7 +78,11 @@
   <div class="cards">
     @for (imovel of imoveis(); track imovel.id) {
       <a class="card" [routerLink]="['/imoveis', imovel.id]">
-        <div class="foto-placeholder">Sem foto</div>
+        @if (imovel.fotoCapa) {
+          <img class="foto-capa" [src]="urlCapa(imovel.fotoCapa)" [alt]="imovel.titulo" loading="lazy" />
+        } @else {
+          <div class="foto-placeholder">Sem foto</div>
+        }
         <div class="card-corpo">
           <div class="selos">
             @if (imovel.finalidade) {
@@ -103,13 +107,15 @@
     }
   </div>
 
-  <nav class="paginacao">
-    <button type="button" class="btn" [disabled]="pagina() === 0" (click)="irParaPagina(pagina() - 1)">
-      ‹ Anterior
-    </button>
-    <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
-    <button type="button" class="btn" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">
-      Próxima ›
-    </button>
-  </nav>
+  @if (totalPaginas() > 1) {
+    <nav class="paginacao">
+      <button type="button" class="btn" [disabled]="pagina() === 0" (click)="irParaPagina(pagina() - 1)">
+        ‹ Anterior
+      </button>
+      <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+      <button type="button" class="btn" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">
+        Próxima ›
+      </button>
+    </nav>
+  }
 }

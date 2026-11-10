@@ -31,7 +31,11 @@ export class ImovelService {
   }
 
   urlFoto(foto: FotoImovel): string {
-    return `${this.urlFotos}/arquivo/${foto.nomeArquivo}`;
+    return this.urlArquivo(foto.nomeArquivo);
+  }
+
+  urlArquivo(nomeArquivo: string): string {
+    return `${this.urlFotos}/arquivo/${encodeURIComponent(nomeArquivo)}`;
   }
 
   // o backend responde texto ("Enviado"), não JSON

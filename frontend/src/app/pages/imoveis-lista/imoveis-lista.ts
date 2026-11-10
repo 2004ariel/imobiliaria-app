@@ -111,6 +111,10 @@ export class ImoveisLista implements OnInit {
     });
   }
 
+  urlCapa(nomeArquivo: string): string {
+    return this.imovelService.urlArquivo(nomeArquivo);
+  }
+
   // botão "Filtrar" e select de ordenação: volta para a primeira página
   aplicarFiltros(): void {
     this.navegar({ ...this.filtros.getRawValue(), page: 0 });
