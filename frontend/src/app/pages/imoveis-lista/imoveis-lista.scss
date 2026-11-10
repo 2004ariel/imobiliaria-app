@@ -1,3 +1,21 @@
+.filtros {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0 16px;
+  align-items: end;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.acoes-filtro {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -5,27 +23,54 @@
 }
 
 .card {
+  display: block;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 16px;
+  overflow: hidden;
   background: #fff;
+  color: inherit;
+  text-decoration: none;
+
+  &:hover {
+    border-color: #1f3a5f;
+  }
 
   h3 {
-    margin: 0 0 8px;
+    margin: 8px 0;
     font-size: 1.1rem;
   }
 
+  .tipo,
   .bairro {
-    margin: 0 0 8px;
+    margin: 0 0 4px;
     color: #666;
   }
 
   .preco {
-    margin: 0 0 8px;
+    margin: 8px 0 0;
     font-size: 1.2rem;
     font-weight: bold;
     color: #1a7f37;
   }
+}
+
+.foto-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 140px;
+  background: #e9edf2;
+  color: #8a9bb3;
+}
+
+.card-corpo {
+  padding: 16px;
+}
+
+.selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 .finalidade {
@@ -34,6 +79,14 @@
   border-radius: 4px;
   background: #e8f0fe;
   font-size: 0.85rem;
+}
+
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 24px 0;
 }
 
 .aviso {

@@ -2,7 +2,7 @@ package com.example.demo.models;
 
 import java.io.Serializable;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -27,11 +27,12 @@ public class FotoImovelModel implements Serializable {
     private Integer id;
 
     private String nomeArquivo;
+    @JsonIgnore // caminho absoluto do servidor não vai para o front
     private String caminhoArquivo;
     private Boolean capa;
     private Integer ordem;
 
-    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+    @JsonIgnore // a foto já é buscada pelo imóvel; evita mandar o imóvel inteiro de novo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "imovel_id", nullable = false)
     private ImovelModel imovel;

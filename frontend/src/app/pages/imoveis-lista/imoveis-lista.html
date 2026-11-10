@@ -1,30 +1,115 @@
 <h2>Imóveis</h2>
 
+<form class="filtros" [formGroup]="filtros" (ngSubmit)="aplicarFiltros()">
+  <div class="campo">
+    <label for="finalidade">Finalidade</label>
+    <select id="finalidade" formControlName="finalidade">
+      <option value="">Todas</option>
+      <option value="VENDA">Venda</option>
+      <option value="ALUGUEL">Aluguel</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="tipoId">Tipo</label>
+    <select id="tipoId" formControlName="tipoId">
+      <option value="">Todos</option>
+      @for (tipo of tipos(); track tipo.id) {
+        <option [value]="tipo.id">{{ tipo.nome }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="bairroId">Bairro</label>
+    <select id="bairroId" formControlName="bairroId">
+      <option value="">Todos</option>
+      @for (bairro of bairros(); track bairro.id) {
+        <option [value]="bairro.id">{{ bairro.nome }} – {{ bairro.cidade }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="dormitorios">Dormitórios (mín.)</label>
+    <input id="dormitorios" type="number" min="0" formControlName="dormitorios" />
+  </div>
+
+  <div class="campo">
+    <label for="precoMin">Preço mínimo</label>
+    <input id="precoMin" type="number" min="0" formControlName="precoMin" placeholder="R$" />
+  </div>
+
+  <div class="campo">
+    <label for="precoMax">Preço máximo</label>
+    <input id="precoMax" type="number" min="0" formControlName="precoMax" placeholder="R$" />
+  </div>
+
+  <div class="campo">
+    <label for="sort">Ordenar por</label>
+    <select id="sort" formControlName="sort" (change)="aplicarFiltros()">
+      <option value="">Padrão</option>
+      <option value="precoVenda,asc">Venda: menor preço</option>
+      <option value="precoVenda,desc">Venda: maior preço</option>
+      <option value="precoAluguel,asc">Aluguel: menor preço</option>
+      <option value="precoAluguel,desc">Aluguel: maior preço</option>
+    </select>
+  </div>
+
+  <div class="acoes-filtro">
+    <button type="submit" class="btn">Filtrar</button>
+    <button type="button" class="btn btn-secundario" (click)="limparFiltros()">Limpar</button>
+  </div>
+</form>
+
+@if (erroSelects()) {
+  <p class="msg msg-aviso">{{ erroSelects() }}</p>
+}
+
 @if (carregando()) {
   <p class="aviso">Carregando imóveis...</p>
 } @else if (erro()) {
   <p class="aviso erro">{{ erro() }}</p>
 } @else if (imoveis().length === 0) {
-  <p class="aviso">Nenhum imóvel encontrado.</p>
+  <p class="aviso">Nenhum imóvel encontrado com esses filtros.</p>
 } @else {
+  <p class="texto-suave">{{ totalElementos() }} imóvel(is) encontrado(s)</p>
+
   <div class="cards">
     @for (imovel of imoveis(); track imovel.id) {
-      <div class="card">
-        <h3>{{ imovel.titulo }}</h3>
-        <p class="bairro">{{ imovel.bairro?.nome ?? 'Bairro não informado' }}</p>
-        <p class="preco">
-          @if (imovel.precoVenda) {
-            {{ imovel.precoVenda | currency: 'BRL' }}
-          } @else if (imovel.precoAluguel) {
-            {{ imovel.precoAluguel | currency: 'BRL' }} /mês
-          } @else {
-            Preço sob consulta
-          }
-        </p>
-        @if (imovel.finalidade) {
-          <span class="finalidade">{{ imovel.finalidade }}</span>
-        }
-      </div>
+      <a class="card" [routerLink]="['/imoveis', imovel.id]">
+        <div class="foto-placeholder">Sem foto</div>
+        <div class="card-corpo">
+          <div class="selos">
+            @if (imovel.finalidade) {
+              <span class="finalidade">{{ imovel.finalidade }}</span>
+            }
+            <span class="selo-status" [class]="classeStatus(imovel.status)">{{ imovel.status || 'Sem status' }}</span>
+          </div>
+          <h3>{{ imovel.titulo }}</h3>
+          <p class="tipo">{{ imovel.tipoImovel?.nome ?? 'Tipo não informado' }}</p>
+          <p class="bairro">
+            {{ imovel.bairro?.nome ?? 'Bairro não informado' }}@if (imovel.bairro?.cidade) {, {{ imovel.bairro?.cidade }}}
+          </p>
+          <p class="preco">
+            @if (precoPrincipal(imovel); as preco) {
+              {{ preco | currency: 'BRL' }}@if (ehAluguel(imovel)) { /mês}
+            } @else {
+              Preço sob consulta
+            }
+          </p>
+        </div>
+      </a>
     }
   </div>
+
+  <nav class="paginacao">
+    <button type="button" class="btn" [disabled]="pagina() === 0" (click)="irParaPagina(pagina() - 1)">
+      ‹ Anterior
+    </button>
+    <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+    <button type="button" class="btn" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">
+      Próxima ›
+    </button>
+  </nav>
 }

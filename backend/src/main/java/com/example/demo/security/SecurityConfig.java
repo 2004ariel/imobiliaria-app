@@ -47,6 +47,9 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/bairros/**", "/tiposimoveis/**").permitAll()
                 .requestMatchers("/bairros/**", "/tiposimoveis/**").hasRole("ADMIN")
 
+                // fotos: ver é público (detalhe do imóvel), upload só ADMIN
+                .requestMatchers(HttpMethod.GET, "/fotos-imoveis/imovel/*", "/fotos-imoveis/arquivo/*").permitAll()
+
                 .requestMatchers("/users/**", "/fotos-imoveis/**", "/email/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex

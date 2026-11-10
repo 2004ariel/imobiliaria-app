@@ -69,6 +69,10 @@ P=$(tr '_-' '/+' <<< "$P"); while [ $(( ${#P} % 4 )) -ne 0 ]; do P="$P="; done
 FAKE=$(base64 -d <<< "$P" | jq -c '.role = "ADMIN"' | base64 | tr '+/' '-_' | tr -d '=\n')
 check "GET /users com token adulterado" 401 $(status $B/users -H "Authorization: Bearer $H.$FAKE.$S")
 
+# 4. limpeza: apaga o imóvel criado pelo teste (USER não pode, ADMIN pode)
+check "DELETE /imoveis/$ID com USER"  403 $(status -X DELETE $B/imoveis/$ID -H "Authorization: Bearer $USER")
+check "DELETE /imoveis/$ID com ADMIN" 204 $(status -X DELETE $B/imoveis/$ID -H "Authorization: Bearer $ADMIN")
+
 echo
 [ $FALHAS -eq 0 ] && echo "Todos os casos passaram." || echo "$FALHAS caso(s) falharam."
 exit $FALHAS

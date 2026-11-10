@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,31 @@ public class FotoImovelService {
     public FotoImovelService(FotoImovelRepository repository, ImovelService imovelService) {
         this.repository = repository;
         this.imovelService = imovelService;
+    }
+
+    public List<FotoImovelModel> listarPorImovel(Integer imovelId) {
+        return repository.findByImovelIdOrderByOrdemAsc(imovelId);
+    }
+
+    // lê o arquivo da foto do disco; null se não existir.
+    // getFileName() descarta qualquer "../" vindo da URL.
+    public byte[] lerArquivo(String nomeArquivo) {
+        Path arquivo = uploadDir.resolve(Paths.get(nomeArquivo).getFileName());
+        try {
+            if (!Files.exists(arquivo)) return null;
+            return Files.readAllBytes(arquivo);
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+    public String tipoDoArquivo(String nomeArquivo) {
+        try {
+            String tipo = Files.probeContentType(uploadDir.resolve(Paths.get(nomeArquivo).getFileName()));
+            return tipo != null ? tipo : "application/octet-stream";
+        } catch (IOException e) {
+            return "application/octet-stream";
+        }
     }
 
     public FotoImovelModel salvarFoto(MultipartFile file, Integer imovelId) {
