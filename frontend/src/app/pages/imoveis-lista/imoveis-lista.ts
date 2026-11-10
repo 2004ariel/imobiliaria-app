@@ -18,8 +18,8 @@ export class ImoveisLista implements OnInit {
 
   ngOnInit(): void {
     this.imovelService.getAll().subscribe({
-      next: (lista) => {
-        this.imoveis.set(lista);
+      next: (pagina) => {
+        this.imoveis.set(pagina.content);
         this.carregando.set(false);
       },
       error: () => {

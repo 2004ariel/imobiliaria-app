@@ -1,8 +1,12 @@
 package com.example.demo.services;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.models.ImovelModel;
 import com.example.demo.repositories.ImovelRepository;
@@ -18,6 +22,26 @@ public class ImovelService {
 
     public List<ImovelModel> getAll() {
         return repository.findAll();
+    }
+
+    // vitrine pública: filtros opcionais + paginação/ordenação.
+    // a faixa de preço vale para o aluguel se a finalidade for ALUGUEL; senão, para a venda.
+    @Transactional(readOnly = true)
+    public Page<ImovelModel> buscarVitrine(String finalidade, Integer tipoId, Integer bairroId,
+            Integer dormitorios, BigDecimal precoMin, BigDecimal precoMax, Pageable pageable) {
+
+        if (finalidade != null && finalidade.isBlank()) {
+            finalidade = null;
+        }
+
+        boolean aluguel = "ALUGUEL".equalsIgnoreCase(finalidade);
+        BigDecimal vendaMin = aluguel ? null : precoMin;
+        BigDecimal vendaMax = aluguel ? null : precoMax;
+        BigDecimal aluguelMin = aluguel ? precoMin : null;
+        BigDecimal aluguelMax = aluguel ? precoMax : null;
+
+        return repository.buscarVitrine(finalidade, tipoId, bairroId, dormitorios,
+            vendaMin, vendaMax, aluguelMin, aluguelMax, pageable);
     }
 
     public ImovelModel find(Integer id) {

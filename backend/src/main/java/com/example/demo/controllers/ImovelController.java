@@ -1,9 +1,11 @@
 package com.example.demo.controllers;
 
+import java.math.BigDecimal;
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -25,9 +27,18 @@ public class ImovelController {
         this.emailService = emailService;
     }
 
+    // vitrine pública: /imoveis?page=0&size=9&sort=precoVenda,asc&finalidade=VENDA&bairroId=1&precoMin=100000
     @GetMapping
-    public ResponseEntity<List<ImovelModel>> getAll() {
-        return ResponseEntity.ok(service.getAll());
+    public ResponseEntity<Page<ImovelModel>> getAll(
+            @RequestParam(required = false) String finalidade,
+            @RequestParam(required = false) Integer tipoId,
+            @RequestParam(required = false) Integer bairroId,
+            @RequestParam(required = false) Integer dormitorios,
+            @RequestParam(required = false) BigDecimal precoMin,
+            @RequestParam(required = false) BigDecimal precoMax,
+            Pageable pageable) {
+        return ResponseEntity.ok(service.buscarVitrine(
+            finalidade, tipoId, bairroId, dormitorios, precoMin, precoMax, pageable));
     }
 
     @GetMapping(value = "/{id}")
