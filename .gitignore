@@ -12,3 +12,6 @@ dist/
 *.iml
 mail.properties
 backend/mail.properties
+
+# seed de dados de teste (local)
+backend/seed-teste.sh
