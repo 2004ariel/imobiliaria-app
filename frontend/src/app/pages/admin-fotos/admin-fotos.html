@@ -10,10 +10,11 @@
   <div class="barra-filtro">
     <div class="campo escolha-imovel">
       <label for="imovel">Imóvel</label>
-      <select id="imovel" [value]="imovelId() ?? ''" (change)="escolherImovel($any($event.target).value)">
-        <option value="">Escolha um imóvel...</option>
+      <!-- [selected] na opção: a lista chega depois do ?imovel=, então [value] no select não pegaria -->
+      <select id="imovel" (change)="escolherImovel($any($event.target).value)">
+        <option value="" [selected]="!imovelId()">Escolha um imóvel...</option>
         @for (i of imoveis(); track i.id) {
-          <option [value]="i.id">#{{ i.id }} – {{ i.titulo }}</option>
+          <option [value]="i.id" [selected]="i.id === imovelId()">#{{ i.id }} – {{ i.titulo }}</option>
         }
       </select>
     </div>

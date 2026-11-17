@@ -21,7 +21,8 @@ export class AdminUsuarios implements OnInit {
   erro = signal('');
   aviso = signal('');
 
-  busca = new FormControl('', { nonNullable: true });
+  // [formGroup] no <form> da busca: sem ele o ngSubmit não dispara (o navegador faria um submit de verdade)
+  buscaForm = new FormGroup({ busca: new FormControl('', { nonNullable: true }) });
   buscaAtual = signal('');
 
   // senha: obrigatória no cadastro, opcional na edição (vazia = mantém a atual)
@@ -66,13 +67,13 @@ export class AdminUsuarios implements OnInit {
   }
 
   buscar(): void {
-    this.buscaAtual.set(this.busca.value.trim());
+    this.buscaAtual.set(this.buscaForm.controls.busca.value.trim());
     this.confirmandoId.set(null);
     this.carregar();
   }
 
   limparBusca(): void {
-    this.busca.setValue('');
+    this.buscaForm.controls.busca.setValue('');
     this.buscar();
   }
 

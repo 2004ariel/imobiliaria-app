@@ -62,10 +62,10 @@
   </div>
 </form>
 
-<form class="barra-filtro" (ngSubmit)="buscar()">
+<form class="barra-filtro" [formGroup]="buscaForm" (ngSubmit)="buscar()">
   <div class="campo">
     <label for="busca">Buscar por nome ou e-mail</label>
-    <input id="busca" type="search" [formControl]="busca" placeholder="Ex.: maria ou @gmail" />
+    <input id="busca" type="search" formControlName="busca" placeholder="Ex.: maria ou @gmail" />
   </div>
   <button type="submit" class="btn">Buscar</button>
   @if (buscaAtual()) {
