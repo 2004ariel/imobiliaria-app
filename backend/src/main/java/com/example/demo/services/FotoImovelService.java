@@ -5,28 +5,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.example.demo.exceptions.RegraNegocioException;
 import com.example.demo.models.FotoImovelModel;
 import com.example.demo.models.ImovelModel;
 import com.example.demo.repositories.FotoImovelRepository;
+import com.example.demo.repositories.ImovelRepository;
 
 @Service
 public class FotoImovelService {
 
+    private static final Set<String> EXTENSOES = Set.of("jpg", "jpeg", "png", "webp", "gif");
+
     private final FotoImovelRepository repository;
-    private final ImovelService imovelService;
+    private final ImovelRepository imovelRepository;
 
     private final Path uploadDir = Paths.get("uploads/fotos"); // diretório de upload (relativo à raiz do projeto)
 
-    public FotoImovelService(FotoImovelRepository repository, ImovelService imovelService) {
+    public FotoImovelService(FotoImovelRepository repository, ImovelRepository imovelRepository) {
         this.repository = repository;
-        this.imovelService = imovelService;
+        this.imovelRepository = imovelRepository;
     }
 
     public List<FotoImovelModel> listarPorImovel(Integer imovelId) {
@@ -54,34 +59,101 @@ public class FotoImovelService {
         }
     }
 
+    // só imagem; a primeira foto do imóvel já vira capa e as próximas vão para o fim da ordem
+    @Transactional
     public FotoImovelModel salvarFoto(MultipartFile file, Integer imovelId) {
-        // 1 -> procurar se existe o imóvel para associar a foto; se não existir, lançar exceção
-        ImovelModel imovel = imovelService.find(imovelId);
-        if (imovel == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Imóvel não encontrado com o ID: " + imovelId);
+        ImovelModel imovel = imovelRepository.findById(imovelId)
+            .orElseThrow(() -> new RegraNegocioException(HttpStatus.NOT_FOUND, "Imóvel não encontrado."));
+
+        if (file == null || file.isEmpty()) {
+            throw new RegraNegocioException(HttpStatus.BAD_REQUEST, "Escolha uma imagem.");
+        }
+        String nomeOriginal = StringUtils.cleanPath(file.getOriginalFilename() == null ? "" : file.getOriginalFilename());
+        String extensao = StringUtils.getFilenameExtension(nomeOriginal);
+        String tipo = file.getContentType();
+        if (extensao == null || !EXTENSOES.contains(extensao.toLowerCase()) || tipo == null || !tipo.startsWith("image/")) {
+            throw new RegraNegocioException(HttpStatus.BAD_REQUEST, "Envie uma imagem (JPG, PNG, WEBP ou GIF).");
         }
 
-        try {
-            // 2 -> criar o diretório de uploads
-            Files.createDirectories(uploadDir);
+        List<FotoImovelModel> existentes = listarPorImovel(imovelId);
+        int proximaOrdem = existentes.isEmpty() ? 1 : existentes.get(existentes.size() - 1).getOrdem() + 1;
 
-            // 3 -> renomear e mover o arquivo para o diretório de upload
-            String nomeOriginal = StringUtils.cleanPath(file.getOriginalFilename());
-            String novoNomeArquivo = System.currentTimeMillis() + "_" + nomeOriginal;
+        try {
+            Files.createDirectories(uploadDir);
+            // só o nome do arquivo (sem pastas) entra no nome salvo
+            String novoNomeArquivo = System.currentTimeMillis() + "_" + Paths.get(nomeOriginal).getFileName();
             Path destino = uploadDir.resolve(novoNomeArquivo).toAbsolutePath();
             file.transferTo(destino.toFile());
 
-            // 4 -> criar o modelo e salvar no banco de dados
-            FotoImovelModel fotoImovel = new FotoImovelModel();
-            fotoImovel.setNomeArquivo(novoNomeArquivo);
-            fotoImovel.setCaminhoArquivo(destino.toString());
-            fotoImovel.setCapa(false); // defina como true se for a capa
-            fotoImovel.setOrdem(1); // defina a ordem conforme necessário
-            fotoImovel.setImovel(imovel);
-            return repository.save(fotoImovel);
-
+            FotoImovelModel foto = new FotoImovelModel();
+            foto.setNomeArquivo(novoNomeArquivo);
+            foto.setCaminhoArquivo(destino.toString());
+            foto.setCapa(existentes.isEmpty());
+            foto.setOrdem(proximaOrdem);
+            foto.setImovel(imovel);
+            return repository.save(foto);
         } catch (IOException e) {
             throw new RuntimeException("Erro ao salvar a foto do imóvel: " + e.getMessage());
+        }
+    }
+
+    // capa = true desmarca as outras fotos do mesmo imóvel (só uma capa)
+    @Transactional
+    public FotoImovelModel atualizar(Integer id, Boolean capa, Integer ordem) {
+        FotoImovelModel foto = buscar(id);
+        if (ordem != null) {
+            if (ordem < 1) {
+                throw new RegraNegocioException(HttpStatus.BAD_REQUEST, "A ordem deve ser 1 ou maior.");
+            }
+            foto.setOrdem(ordem);
+        }
+        if (Boolean.TRUE.equals(capa)) {
+            for (FotoImovelModel outra : listarPorImovel(foto.getImovel().getId())) {
+                outra.setCapa(outra.getId().equals(foto.getId()));
+            }
+        } else if (Boolean.FALSE.equals(capa)) {
+            foto.setCapa(false);
+        }
+        return foto;
+    }
+
+    // apaga o registro e o arquivo; se era a capa, a próxima foto vira capa
+    @Transactional
+    public void excluir(Integer id) {
+        FotoImovelModel foto = buscar(id);
+        Integer imovelId = foto.getImovel().getId();
+        boolean eraCapa = Boolean.TRUE.equals(foto.getCapa());
+
+        repository.delete(foto);
+        apagarArquivo(foto.getNomeArquivo());
+
+        if (eraCapa) {
+            listarPorImovel(imovelId).stream()
+                .filter(f -> !f.getId().equals(id))
+                .findFirst()
+                .ifPresent(f -> f.setCapa(true));
+        }
+    }
+
+    // usado ao excluir o imóvel inteiro
+    @Transactional
+    public void excluirTodasDoImovel(Integer imovelId) {
+        for (FotoImovelModel foto : listarPorImovel(imovelId)) {
+            repository.delete(foto);
+            apagarArquivo(foto.getNomeArquivo());
+        }
+    }
+
+    private FotoImovelModel buscar(Integer id) {
+        return repository.findById(id)
+            .orElseThrow(() -> new RegraNegocioException(HttpStatus.NOT_FOUND, "Foto não encontrada."));
+    }
+
+    private void apagarArquivo(String nomeArquivo) {
+        try {
+            Files.deleteIfExists(uploadDir.resolve(Paths.get(nomeArquivo).getFileName()));
+        } catch (IOException e) {
+            // o registro já saiu do banco; um arquivo órfão não quebra nada
         }
     }
 }

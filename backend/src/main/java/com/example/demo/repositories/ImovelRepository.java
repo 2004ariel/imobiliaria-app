@@ -16,7 +16,8 @@ public interface ImovelRepository extends JpaRepository<ImovelModel, Integer> {
 
     // vitrine: cada filtro é opcional (null = não filtra)
     @Query("select i from ImovelModel i where "
-        + "(:finalidade is null or upper(i.finalidade) = upper(:finalidade)) "
+        + "(:status is null or i.status = :status) "
+        + "and (:finalidade is null or upper(i.finalidade) = upper(:finalidade)) "
         + "and (:tipoId is null or i.tipoImovel.id = :tipoId) "
         + "and (:bairroId is null or i.bairro.id = :bairroId) "
         + "and (:dormitorios is null or i.dormitorios >= :dormitorios) "
@@ -25,6 +26,7 @@ public interface ImovelRepository extends JpaRepository<ImovelModel, Integer> {
         + "and (:aluguelMin is null or i.precoAluguel >= :aluguelMin) "
         + "and (:aluguelMax is null or i.precoAluguel <= :aluguelMax)")
     Page<ImovelModel> buscarVitrine(
+        @Param("status") StatusImovel status,
         @Param("finalidade") String finalidade,
         @Param("tipoId") Integer tipoId,
         @Param("bairroId") Integer bairroId,
@@ -34,6 +36,14 @@ public interface ImovelRepository extends JpaRepository<ImovelModel, Integer> {
         @Param("aluguelMin") BigDecimal aluguelMin,
         @Param("aluguelMax") BigDecimal aluguelMax,
         Pageable pageable);
+
+    // ---- exclusões (não apagar o que está em uso) ----
+
+    long countByBairroId(Integer bairroId);
+
+    long countByTipoImovelId(Integer tipoImovelId);
+
+    boolean existsByUsuarioId(Long usuarioId);
 
     // ---- painel do admin ----
 

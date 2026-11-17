@@ -14,6 +14,11 @@ public interface FavoritoRepository extends JpaRepository<FavoritoModel, Integer
 
     Optional<FavoritoModel> findByUsuarioIdAndImovelId(Long usuarioId, Integer imovelId);
 
+    // usados ao excluir imóvel/usuário (favorito não impede a exclusão)
+    void deleteByImovelId(Integer imovelId);
+
+    void deleteByUsuarioId(Long usuarioId);
+
     // devolve direto os imóveis favoritados, do mais recente para o mais antigo
     @Query("select f.imovel from FavoritoModel f where f.usuario.id = :usuarioId order by f.createdAt desc")
     List<ImovelModel> buscarImoveisDoUsuario(@Param("usuarioId") Long usuarioId);

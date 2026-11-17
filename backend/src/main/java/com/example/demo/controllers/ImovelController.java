@@ -29,8 +29,10 @@ public class ImovelController {
     }
 
     // vitrine pública: /imoveis?page=0&size=9&sort=precoVenda,asc&finalidade=VENDA&bairroId=1&precoMin=100000
+    // admin usa também ?status=DISPONIVEL
     @GetMapping
     public ResponseEntity<Page<ImovelModel>> getAll(
+            @RequestParam(required = false) StatusImovel status,
             @RequestParam(required = false) String finalidade,
             @RequestParam(required = false) Integer tipoId,
             @RequestParam(required = false) Integer bairroId,
@@ -39,7 +41,7 @@ public class ImovelController {
             @RequestParam(required = false) BigDecimal precoMax,
             Pageable pageable) {
         return ResponseEntity.ok(service.buscarVitrine(
-            finalidade, tipoId, bairroId, dormitorios, precoMin, precoMax, pageable));
+            status, finalidade, tipoId, bairroId, dormitorios, precoMin, precoMax, pageable));
     }
 
     @GetMapping(value = "/{id}")

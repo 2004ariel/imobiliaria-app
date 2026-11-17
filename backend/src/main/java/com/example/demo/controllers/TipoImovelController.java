@@ -33,7 +33,11 @@ public class TipoImovelController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<TipoImovelModel> find(@PathVariable Integer id) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.find(id));
+        TipoImovelModel model = service.find(id);
+        if (model == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(model);
     }
 
     @PostMapping

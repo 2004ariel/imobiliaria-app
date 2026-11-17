@@ -1,22 +1,18 @@
 package com.example.demo.controllers;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 import com.example.demo.models.FotoImovelModel;
 import com.example.demo.services.FotoImovelService;
 
+// erros de regra (imóvel inexistente, arquivo que não é imagem) saem pelo TratadorDeErros
 @RestController
 @RequestMapping(value = "/fotos-imoveis")
 public class FotoImovelController {
@@ -45,20 +41,25 @@ public class FotoImovelController {
             .body(conteudo);
     }
 
+    // ADMIN: multipart com "file" (imagem) e "imovelId"
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> upload(@RequestParam("file") MultipartFile file,
-                                       @RequestParam("imovelId") Integer imovelId) {
-        try {
-            if (file.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-            service.salvarFoto(file, imovelId);
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } catch (ResponseStatusException e) {
-            // imóvel não encontrado -> mantém o 404 lançado pelo service
-            return ResponseEntity.status(e.getStatusCode()).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<FotoImovelModel> upload(@RequestParam("file") MultipartFile file,
+                                                  @RequestParam("imovelId") Integer imovelId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.salvarFoto(file, imovelId));
+    }
+
+    // ADMIN: body {"capa": true, "ordem": 2} (os dois opcionais)
+    @PutMapping(value = "/{id}")
+    public ResponseEntity<FotoImovelModel> atualizar(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+        Boolean capa = body.get("capa") instanceof Boolean b ? b : null;
+        Integer ordem = body.get("ordem") instanceof Number n ? n.intValue() : null;
+        return ResponseEntity.ok(service.atualizar(id, capa, ordem));
+    }
+
+    // ADMIN: apaga o registro e o arquivo
+    @DeleteMapping(value = "/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Integer id) {
+        service.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

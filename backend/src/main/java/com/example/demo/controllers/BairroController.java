@@ -33,7 +33,11 @@ public class BairroController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<BairroModel> find(@PathVariable Integer id) {
-        return ResponseEntity.status(HttpStatus.OK).body(service.find(id));
+        BairroModel model = service.find(id);
+        if (model == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(model);
     }
 
     @PostMapping

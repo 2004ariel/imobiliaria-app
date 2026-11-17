@@ -13,6 +13,10 @@ import com.example.demo.models.StatusOferta;
 
 public interface OfertaRepository extends JpaRepository<OfertaModel, Integer> {
 
+    boolean existsByImovelId(Integer imovelId);
+
+    boolean existsByUsuarioId(Long usuarioId);
+
     boolean existsByImovelIdAndUsuarioIdAndStatus(Integer imovelId, Long usuarioId, StatusOferta status);
 
     List<OfertaModel> findByImovelIdAndStatus(Integer imovelId, StatusOferta status);
