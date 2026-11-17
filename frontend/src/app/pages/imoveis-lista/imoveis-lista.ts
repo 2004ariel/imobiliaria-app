@@ -7,7 +7,7 @@ import { BairroService } from '../../services/bairro.service';
 import { TipoImovelService } from '../../services/tipo-imovel.service';
 import { Bairro, FiltrosImovel, Imovel, TipoImovel } from '../../models/imovel';
 import { ErroApi } from '../../models/erro-api';
-import { classeStatus, ehAluguel, precoPrincipal } from '../../utils/imovel-util';
+import { classeStatus, rotuloStatus, ehAluguel, precoPrincipal } from '../../utils/imovel-util';
 
 const TAMANHO_PAGINA = 9;
 
@@ -52,6 +52,7 @@ export class ImoveisLista implements OnInit {
   ehAluguel = ehAluguel;
   precoPrincipal = precoPrincipal;
   classeStatus = classeStatus;
+  rotuloStatus = rotuloStatus;
 
   ngOnInit(): void {
     this.carregarSelects();

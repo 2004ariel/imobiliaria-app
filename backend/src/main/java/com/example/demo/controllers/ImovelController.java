@@ -12,6 +12,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.demo.dtos.SaberMaisDTO;
 import com.example.demo.models.ImovelModel;
+import com.example.demo.models.StatusImovel;
 import com.example.demo.services.EmailService;
 import com.example.demo.services.ImovelService;
 
@@ -68,9 +69,13 @@ public class ImovelController {
         return ResponseEntity.noContent().build();
     }
 
-    // qualquer usuário autenticado pode alterar: body {"status": "VENDIDO"}
+    // só ADMIN (ajuste manual); no fluxo normal o status muda pelas ofertas/contratos.
+    // body {"status": "VENDIDO"}; valor fora do enum -> 400
     @PatchMapping(value = "/{id}/status")
-    public ResponseEntity<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<Void> updateStatus(@PathVariable Integer id, @RequestBody Map<String, StatusImovel> body) {
+        if (body.get("status") == null) {
+            return ResponseEntity.badRequest().build();
+        }
         if (service.updateStatus(id, body.get("status")) == null) {
             return ResponseEntity.notFound().build();
         }

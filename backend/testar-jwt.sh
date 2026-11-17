@@ -60,8 +60,13 @@ RESP=$(curl -s -o /dev/null -D - -X POST $B/imoveis -H "$J" -H "Authorization: B
 check "POST /imoveis com ADMIN"     201 $(head -1 <<< "$RESP" | awk '{print $2}')
 ID=$(grep -i '^location:' <<< "$RESP" | sed 's#.*/##' | tr -d '\r')
 
-check "PATCH /imoveis/$ID/status com USER" 204 $(status -X PATCH $B/imoveis/$ID/status -H "$J" \
+# status do imóvel: só ADMIN (no fluxo normal muda pelas ofertas)
+check "PATCH /imoveis/$ID/status com USER"  403 $(status -X PATCH $B/imoveis/$ID/status -H "$J" \
     -H "Authorization: Bearer $USER" -d '{"status":"VENDIDO"}')
+check "PATCH /imoveis/$ID/status com ADMIN" 204 $(status -X PATCH $B/imoveis/$ID/status -H "$J" \
+    -H "Authorization: Bearer $ADMIN" -d '{"status":"VENDIDO"}')
+check "PATCH status inválido com ADMIN"     400 $(status -X PATCH $B/imoveis/$ID/status -H "$J" \
+    -H "Authorization: Bearer $ADMIN" -d '{"status":"Vendido"}')
 
 # token adulterado: troca role USER -> ADMIN no payload e mantém a assinatura original
 IFS=. read -r H P S <<< "$USER"

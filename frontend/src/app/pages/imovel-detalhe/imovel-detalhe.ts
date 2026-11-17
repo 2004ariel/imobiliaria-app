@@ -5,7 +5,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ImovelService } from '../../services/imovel.service';
 import { FotoImovel, Imovel } from '../../models/imovel';
 import { ErroApi } from '../../models/erro-api';
-import { classeStatus, ehAluguel, precoPrincipal } from '../../utils/imovel-util';
+import { classeStatus, rotuloStatus, ehAluguel, precoPrincipal } from '../../utils/imovel-util';
 
 @Component({
   selector: 'app-imovel-detalhe',
@@ -40,6 +40,7 @@ export class ImovelDetalhe implements OnInit {
   ehAluguel = ehAluguel;
   precoPrincipal = precoPrincipal;
   classeStatus = classeStatus;
+  rotuloStatus = rotuloStatus;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));

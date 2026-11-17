@@ -37,11 +37,16 @@ public class SecurityConfig {
                 // preflight do CORS (o navegador manda OPTIONS sem token)
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // imóveis: leitura pública, status para qualquer logado, resto só ADMIN
+                // imóveis: leitura pública, resto só ADMIN (inclui PATCH /imoveis/{id}/status)
                 .requestMatchers(HttpMethod.GET, "/imoveis", "/imoveis/*").permitAll()
                 .requestMatchers(HttpMethod.POST, "/imoveis/sabermais/*").permitAll()
-                .requestMatchers(HttpMethod.PATCH, "/imoveis/*/status").authenticated()
                 .requestMatchers("/imoveis/**").hasRole("ADMIN")
+
+                // ofertas: admin lista todas e responde; cliente cria, vê as suas e cancela
+                .requestMatchers(HttpMethod.GET, "/ofertas").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/ofertas/*/aceitar", "/ofertas/*/recusar").hasRole("ADMIN")
+                // cliente = USER, COMPRADOR ou VENDEDOR
+                .requestMatchers("/ofertas/**", "/favoritos/**").hasAnyRole("USER", "COMPRADOR", "VENDEDOR")
 
                 // bairros e tipos: GET público (inclui paginação), escrita só ADMIN
                 .requestMatchers(HttpMethod.GET, "/bairros/**", "/tiposimoveis/**").permitAll()

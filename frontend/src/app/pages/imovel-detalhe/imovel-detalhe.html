@@ -29,7 +29,7 @@
         @if (imovel.finalidade) {
           <span class="finalidade">{{ imovel.finalidade }}</span>
         }
-        <span class="selo-status" [class]="classeStatus(imovel.status)">{{ imovel.status || 'Sem status' }}</span>
+        <span class="selo-status" [class]="classeStatus(imovel.status)">{{ rotuloStatus(imovel.status) }}</span>
         <span class="texto-suave">Código {{ imovel.id }}</span>
       </div>
 

@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.demo.models.ImovelModel;
+import com.example.demo.models.StatusImovel;
 import com.example.demo.repositories.FotoImovelRepository;
 import com.example.demo.repositories.ImovelRepository;
 
@@ -52,9 +53,9 @@ public class ImovelService {
         return pagina;
     }
 
-    // uma query só para as fotos da página inteira (evita uma consulta por imóvel).
+    // uma query só para as fotos da lista inteira (vitrine e favoritos) (evita uma consulta por imóvel).
     // a primeira foto de cada imóvel (capa primeiro, depois ordem) vira a capa do card.
-    private void preencherFotoCapa(List<ImovelModel> imoveis) {
+    public void preencherFotoCapa(List<ImovelModel> imoveis) {
         if (imoveis.isEmpty()) return;
 
         List<Integer> ids = new ArrayList<>();
@@ -87,7 +88,7 @@ public class ImovelService {
         return null;
     }
 
-    public ImovelModel updateStatus(Integer id, String status) {
+    public ImovelModel updateStatus(Integer id, StatusImovel status) {
         ImovelModel model = find(id);
         if (model == null) return null;
         model.setStatus(status);
