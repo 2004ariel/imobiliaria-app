@@ -1,0 +1,172 @@
+<a routerLink="/admin/imoveis">‹ Voltar para imóveis</a>
+<h2>{{ id ? 'Editar imóvel #' + id : 'Novo imóvel' }}</h2>
+
+@if (carregando()) {
+  <p class="aviso">Carregando imóvel...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+} @else {
+  <form class="form-painel" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+    @if (erroForm()) {
+      <p class="msg msg-erro" role="alert">{{ erroForm() }}</p>
+    }
+
+    <h3>Dados principais</h3>
+    <div class="form-grid">
+      <div class="campo campo-largo">
+        <label for="titulo">Título *</label>
+        <input id="titulo" type="text" formControlName="titulo" />
+        @if (campoInvalido('titulo')) {
+          <small class="erro-campo">Informe o título.</small>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="finalidade">Finalidade *</label>
+        <select id="finalidade" formControlName="finalidade">
+          @for (f of opcoesFinalidade; track f.valor) {
+            <option [value]="f.valor">{{ f.rotulo }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="campo">
+        <label for="status">Status *</label>
+        <select id="status" formControlName="status">
+          @for (s of opcoesStatus; track s.valor) {
+            <option [value]="s.valor">{{ s.rotulo }}</option>
+          }
+        </select>
+        <small class="dica">No dia a dia o status muda sozinho pelas ofertas e contratos.</small>
+      </div>
+
+      <div class="campo">
+        <label for="tipoId">Tipo *</label>
+        <select id="tipoId" formControlName="tipoId">
+          <option value="">Escolha...</option>
+          @for (t of tipos(); track t.id) {
+            <option [value]="t.id">{{ t.nome }}</option>
+          }
+        </select>
+        @if (campoInvalido('tipoId')) {
+          <small class="erro-campo">Escolha o tipo.</small>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="bairroId">Bairro *</label>
+        <select id="bairroId" formControlName="bairroId">
+          <option value="">Escolha...</option>
+          @for (b of bairros(); track b.id) {
+            <option [value]="b.id">{{ b.nome }} – {{ b.cidade }}</option>
+          }
+        </select>
+        @if (campoInvalido('bairroId')) {
+          <small class="erro-campo">Escolha o bairro.</small>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="precoVenda">Preço de venda (R$){{ form.controls.finalidade.value === 'VENDA' ? ' *' : '' }}</label>
+        <input id="precoVenda" type="number" min="0" step="0.01" inputmode="decimal" formControlName="precoVenda" />
+        @if (precoFaltando('precoVenda')) {
+          <small class="erro-campo">Informe o preço de venda (maior que zero).</small>
+        } @else if (campoInvalido('precoVenda')) {
+          <small class="erro-campo">O preço não pode ser negativo.</small>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="precoAluguel">Aluguel mensal (R$){{ form.controls.finalidade.value === 'ALUGUEL' ? ' *' : '' }}</label>
+        <input id="precoAluguel" type="number" min="0" step="0.01" inputmode="decimal" formControlName="precoAluguel" />
+        @if (precoFaltando('precoAluguel')) {
+          <small class="erro-campo">Informe o valor do aluguel (maior que zero).</small>
+        } @else if (campoInvalido('precoAluguel')) {
+          <small class="erro-campo">O valor não pode ser negativo.</small>
+        }
+      </div>
+    </div>
+
+    <label class="campo-check">
+      <input type="checkbox" formControlName="destaque" />
+      Destaque na vitrine
+    </label>
+
+    <h3>Características</h3>
+    <div class="form-grid">
+      <div class="campo">
+        <label for="dormitorios">Dormitórios</label>
+        <input id="dormitorios" type="number" min="0" step="1" inputmode="numeric" formControlName="dormitorios" />
+        @if (campoInvalido('dormitorios')) {
+          <small class="erro-campo">Número inteiro, 0 ou mais.</small>
+        }
+      </div>
+      <div class="campo">
+        <label for="banheiros">Banheiros</label>
+        <input id="banheiros" type="number" min="0" step="1" inputmode="numeric" formControlName="banheiros" />
+        @if (campoInvalido('banheiros')) {
+          <small class="erro-campo">Número inteiro, 0 ou mais.</small>
+        }
+      </div>
+      <div class="campo">
+        <label for="garagem">Vagas de garagem</label>
+        <input id="garagem" type="number" min="0" step="1" inputmode="numeric" formControlName="garagem" />
+        @if (campoInvalido('garagem')) {
+          <small class="erro-campo">Número inteiro, 0 ou mais.</small>
+        }
+      </div>
+      <div class="campo">
+        <label for="areaTotal">Área total (m²)</label>
+        <input id="areaTotal" type="number" min="0" step="0.01" inputmode="decimal" formControlName="areaTotal" />
+        @if (campoInvalido('areaTotal')) {
+          <small class="erro-campo">A área não pode ser negativa.</small>
+        }
+      </div>
+      <div class="campo">
+        <label for="areaConstruida">Área construída (m²)</label>
+        <input id="areaConstruida" type="number" min="0" step="0.01" inputmode="decimal" formControlName="areaConstruida" />
+        @if (campoInvalido('areaConstruida')) {
+          <small class="erro-campo">A área não pode ser negativa.</small>
+        }
+      </div>
+      <div class="campo campo-largo">
+        <label for="descricao">Descrição</label>
+        <textarea id="descricao" rows="4" formControlName="descricao"></textarea>
+      </div>
+      <div class="campo campo-largo">
+        <label for="caracteristicas">Itens (ex.: piscina, churrasqueira)</label>
+        <textarea id="caracteristicas" rows="2" formControlName="caracteristicas"></textarea>
+      </div>
+    </div>
+
+    <h3>Endereço</h3>
+    <div class="form-grid">
+      <div class="campo campo-largo">
+        <label for="endereco">Rua</label>
+        <input id="endereco" type="text" formControlName="endereco" />
+      </div>
+      <div class="campo">
+        <label for="numero">Número</label>
+        <input id="numero" type="text" formControlName="numero" />
+      </div>
+      <div class="campo">
+        <label for="complemento">Complemento</label>
+        <input id="complemento" type="text" formControlName="complemento" />
+      </div>
+      <div class="campo">
+        <label for="cep">CEP</label>
+        <input id="cep" type="text" inputmode="numeric" formControlName="cep" placeholder="98280-000" />
+        @if (campoInvalido('cep')) {
+          <small class="erro-campo">CEP no formato 00000-000.</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-acoes">
+      <button type="submit" class="btn" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando...' : (id ? 'Salvar alterações' : 'Cadastrar imóvel') }}
+      </button>
+      <a class="btn btn-secundario" routerLink="/admin/imoveis">Cancelar</a>
+    </div>
+  </form>
+}

@@ -1,0 +1,87 @@
+<div class="topo-pagina">
+  <h2>Imóveis</h2>
+  <a class="btn" routerLink="/admin/imoveis/novo">+ Novo imóvel</a>
+</div>
+
+<div class="barra-filtro">
+  <div class="campo">
+    <label for="filtroStatus">Status</label>
+    <select id="filtroStatus" [value]="status()" (change)="filtrar($any($event.target).value)">
+      <option value="">Todos</option>
+      @for (opcao of opcoesStatus; track opcao.valor) {
+        <option [value]="opcao.valor">{{ opcao.rotulo }}</option>
+      }
+    </select>
+  </div>
+  @if (!carregando() && !erro()) {
+    <span class="texto-suave">{{ totalElementos() }} imóvel(is)</span>
+  }
+</div>
+
+@if (aviso()) {
+  <p class="msg msg-sucesso">{{ aviso() }}</p>
+}
+
+@if (carregando()) {
+  <p class="aviso">Carregando imóveis...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (imoveis().length === 0) {
+  <p class="aviso">{{ status() ? 'Nenhum imóvel com esse status.' : 'Nenhum imóvel cadastrado ainda.' }}</p>
+} @else {
+  <table class="tabela">
+    <thead>
+      <tr><th>Código</th><th>Título</th><th>Finalidade</th><th>Preço</th><th>Bairro</th><th>Status</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      @for (imovel of imoveis(); track imovel.id) {
+        <tr>
+          <td data-label="Código">{{ imovel.id }}</td>
+          <td data-label="Título">
+            <span><a [routerLink]="['/imoveis', imovel.id]">{{ imovel.titulo }}</a>
+              <span class="sub">{{ imovel.tipoImovel?.nome ?? 'sem tipo' }}</span></span>
+          </td>
+          <td data-label="Finalidade">{{ rotuloFinalidade(imovel.finalidade) }}</td>
+          <td data-label="Preço">
+            @if (precoPrincipal(imovel); as preco) {
+              {{ preco | currency: 'BRL' }}@if (ehAluguel(imovel)) {/mês}
+            } @else { — }
+          </td>
+          <td data-label="Bairro">{{ imovel.bairro?.nome ?? '—' }}</td>
+          <td data-label="Status">
+            <span class="selo-status" [class]="classeStatus(imovel.status)">{{ rotuloStatus(imovel.status) }}</span>
+          </td>
+          <td class="sem-rotulo col-acoes">
+            @if (confirmandoId() === imovel.id) {
+              <div class="confirmacao" role="alert">
+                <p>Excluir "{{ imovel.titulo }}"? As fotos dele também serão apagadas.</p>
+                <button type="button" class="btn btn-perigo" [disabled]="excluindoId() === imovel.id" (click)="excluir(imovel)">
+                  {{ excluindoId() === imovel.id ? 'Excluindo...' : 'Sim, excluir' }}
+                </button>
+                <button type="button" class="btn btn-secundario" (click)="confirmandoId.set(null)">Voltar</button>
+              </div>
+            } @else {
+              <div class="acoes-linha">
+                <a class="btn btn-secundario" [routerLink]="['/admin/imoveis', imovel.id, 'editar']">Editar</a>
+                <a class="btn btn-secundario" routerLink="/admin/fotos" [queryParams]="{ imovel: imovel.id }">Fotos</a>
+                <button type="button" class="btn btn-secundario" (click)="pedirExclusao(imovel.id)">Excluir</button>
+              </div>
+            }
+            @if (erroAcao()?.id === imovel.id) {
+              <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (totalPaginas() > 1) {
+    <nav class="paginacao">
+      <button type="button" class="btn" [disabled]="pagina() === 0" (click)="irParaPagina(pagina() - 1)">‹ Anterior</button>
+      <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+      <button type="button" class="btn" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">Próxima ›</button>
+    </nav>
+  }
+}

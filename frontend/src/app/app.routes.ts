@@ -12,6 +12,9 @@ import { AdminOfertas } from './pages/admin-ofertas/admin-ofertas';
 import { AdminContratos } from './pages/admin-contratos/admin-contratos';
 import { AdminBairros } from './pages/admin-bairros/admin-bairros';
 import { AdminTipos } from './pages/admin-tipos/admin-tipos';
+import { AdminImoveis } from './pages/admin-imoveis/admin-imoveis';
+import { AdminImovelForm } from './pages/admin-imovel-form/admin-imovel-form';
+import { AdminFotos } from './pages/admin-fotos/admin-fotos';
 import { authGuard, roleGuard } from './guards/auth.guard';
 import { ROLES_CLIENTE } from './services/auth.service';
 
@@ -45,6 +48,10 @@ export const routes: Routes = [
       { path: '', loadComponent: () => import('./pages/admin-inicio/admin-inicio').then((m) => m.AdminInicio) },
       { path: 'ofertas', component: AdminOfertas },
       { path: 'contratos', component: AdminContratos },
+      { path: 'imoveis', component: AdminImoveis },
+      { path: 'imoveis/novo', component: AdminImovelForm },
+      { path: 'imoveis/:id/editar', component: AdminImovelForm },
+      { path: 'fotos', component: AdminFotos },
       { path: 'bairros', component: AdminBairros },
       { path: 'tipos', component: AdminTipos }
     ]

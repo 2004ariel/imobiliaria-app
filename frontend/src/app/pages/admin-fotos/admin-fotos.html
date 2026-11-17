@@ -1,0 +1,93 @@
+<h2>Fotos dos imóveis</h2>
+
+@if (carregandoImoveis()) {
+  <p class="aviso">Carregando imóveis...</p>
+} @else if (erroImoveis()) {
+  <p class="aviso erro">{{ erroImoveis() }}</p>
+} @else if (imoveis().length === 0) {
+  <p class="aviso">Nenhum imóvel cadastrado. <a routerLink="/admin/imoveis/novo">Cadastre um imóvel</a> primeiro.</p>
+} @else {
+  <div class="barra-filtro">
+    <div class="campo escolha-imovel">
+      <label for="imovel">Imóvel</label>
+      <select id="imovel" [value]="imovelId() ?? ''" (change)="escolherImovel($any($event.target).value)">
+        <option value="">Escolha um imóvel...</option>
+        @for (i of imoveis(); track i.id) {
+          <option [value]="i.id">#{{ i.id }} – {{ i.titulo }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (imovelId()) {
+    @if (aviso()) {
+      <p class="msg msg-sucesso">{{ aviso() }}</p>
+    }
+
+    <section class="form-painel">
+      <h3>Enviar nova foto</h3>
+      <div class="envio">
+        <input id="arquivoFoto" type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+          aria-label="Imagem da foto" (change)="escolherArquivo($event)" />
+        <button type="button" class="btn" [disabled]="!arquivo() || enviando()" (click)="enviar()">
+          {{ enviando() ? 'Enviando...' : 'Enviar foto' }}
+        </button>
+      </div>
+      @if (erroArquivo()) {
+        <p class="msg msg-erro">{{ erroArquivo() }}</p>
+      }
+      <small class="dica">JPG, PNG, WEBP ou GIF, até 10 MB. A primeira foto do imóvel vira a capa.</small>
+    </section>
+
+    @if (carregandoFotos()) {
+      <p class="aviso">Carregando fotos...</p>
+    } @else if (erroFotos()) {
+      <p class="aviso erro">{{ erroFotos() }}</p>
+      <button type="button" class="btn btn-secundario" (click)="carregarFotos()">Tentar de novo</button>
+    } @else if (fotos().length === 0) {
+      <p class="aviso">"{{ tituloEscolhido() }}" ainda não tem fotos.</p>
+    } @else {
+      <ul class="galeria">
+        @for (foto of fotos(); track foto.id) {
+          <li class="foto-card" [class.eh-capa]="foto.capa">
+            <img [src]="urlFoto(foto)" [alt]="'Foto ' + foto.ordem + ' de ' + tituloEscolhido()" loading="lazy" />
+            <div class="foto-corpo">
+              @if (foto.capa) {
+                <span class="selo-status status-disponivel">Capa</span>
+              } @else {
+                <button type="button" class="btn btn-secundario" [disabled]="processandoId() === foto.id" (click)="marcarCapa(foto)">
+                  Marcar como capa
+                </button>
+              }
+
+              <div class="ordem">
+                <label [for]="'ordem-' + foto.id">Ordem</label>
+                <input #ordem [id]="'ordem-' + foto.id" type="number" min="1" step="1" [value]="foto.ordem" />
+                <button type="button" class="btn btn-secundario" [disabled]="processandoId() === foto.id"
+                  (click)="salvarOrdem(foto, ordem.value)">Salvar</button>
+              </div>
+
+              @if (confirmandoId() === foto.id) {
+                <div class="confirmacao" role="alert">
+                  <p>Excluir esta foto? O arquivo também é apagado.</p>
+                  <button type="button" class="btn btn-perigo" [disabled]="processandoId() === foto.id" (click)="excluir(foto)">
+                    {{ processandoId() === foto.id ? 'Excluindo...' : 'Sim, excluir' }}
+                  </button>
+                  <button type="button" class="btn btn-secundario" (click)="confirmandoId.set(null)">Voltar</button>
+                </div>
+              } @else {
+                <button type="button" class="btn btn-secundario" (click)="pedirExclusao(foto.id)">Excluir</button>
+              }
+
+              @if (erroAcao()?.id === foto.id) {
+                <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+              }
+            </div>
+          </li>
+        }
+      </ul>
+    }
+  } @else {
+    <p class="aviso">Escolha um imóvel para ver e enviar as fotos.</p>
+  }
+}

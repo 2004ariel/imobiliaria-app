@@ -92,6 +92,21 @@ export const COR_GRAFICO_FINALIDADE: Record<string, string> = {
   ALUGUEL: '#e07a1f'
 };
 
+export const OPCOES_STATUS_IMOVEL = Object.entries(STATUS_IMOVEL).map(([valor, rotulo]) => ({ valor, rotulo }));
+export const OPCOES_FINALIDADE = Object.entries(FINALIDADE).map(([valor, rotulo]) => ({ valor, rotulo }));
+
+// perfis que o admin escolhe (COMPRADOR/VENDEDOR são registros antigos, tratados como cliente)
+const PERFIL: Record<string, string> = {
+  USER: 'Cliente',
+  ADMIN: 'Administrador',
+  COMPRADOR: 'Cliente (antigo: comprador)',
+  VENDEDOR: 'Cliente (antigo: vendedor)'
+};
+
+export function rotuloPerfil(tipo: string): string {
+  return PERFIL[tipo] ?? tipo;
+}
+
 // opções dos filtros do admin (ordem do fluxo)
 export const OPCOES_STATUS_OFERTA = Object.entries(STATUS_OFERTA).map(([valor, rotulo]) => ({ valor, rotulo }));
 export const OPCOES_STATUS_CONTRATO = Object.entries(STATUS_CONTRATO).map(([valor, rotulo]) => ({ valor, rotulo }));
