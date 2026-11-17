@@ -48,6 +48,12 @@ public class SecurityConfig {
                 // cliente = USER, COMPRADOR ou VENDEDOR
                 .requestMatchers("/ofertas/**", "/favoritos/**").hasAnyRole("USER", "COMPRADOR", "VENDEDOR")
 
+                // contratos: cliente vê os seus aprovados e assina; PDF para admin ou dono (checado no service); resto ADMIN
+                .requestMatchers(HttpMethod.GET, "/contratos/meus").hasAnyRole("USER", "COMPRADOR", "VENDEDOR")
+                .requestMatchers(HttpMethod.PATCH, "/contratos/*/assinar").hasAnyRole("USER", "COMPRADOR", "VENDEDOR")
+                .requestMatchers(HttpMethod.GET, "/contratos/*/pdf").authenticated()
+                .requestMatchers("/contratos/**").hasRole("ADMIN")
+
                 // bairros e tipos: GET público (inclui paginação), escrita só ADMIN
                 .requestMatchers(HttpMethod.GET, "/bairros/**", "/tiposimoveis/**").permitAll()
                 .requestMatchers("/bairros/**", "/tiposimoveis/**").hasRole("ADMIN")

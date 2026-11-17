@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="font-family: Arial, sans-serif;">
+    <div style="padding: 20px;">
+        <h2>Olá, <span th:text="${cliente.nome}">Cliente</span>!</h2>
+
+        <p>Seu contrato foi aprovado e já está disponível para assinatura na área do cliente.</p>
+
+        <h3 th:text="${imovel.titulo}">Título do imóvel</h3>
+        <ul>
+            <li>Tipo da oferta: <span th:text="${oferta.tipo}"></span></li>
+            <li>Valor proposto: R$ <span th:text="${oferta.valorProposto}"></span></li>
+            <li>Bairro: <span th:text="${imovel.bairro?.nome}"></span></li>
+        </ul>
+
+        <p>Acesse "Meus contratos" para baixar o PDF e assinar.</p>
+    </div>
+</body>
+</html>

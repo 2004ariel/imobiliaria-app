@@ -17,6 +17,8 @@ public interface OfertaRepository extends JpaRepository<OfertaModel, Integer> {
 
     List<OfertaModel> findByImovelIdAndStatus(Integer imovelId, StatusOferta status);
 
+    List<OfertaModel> findByImovelIdAndStatusIn(Integer imovelId, List<StatusOferta> status);
+
     // "join fetch" traz imóvel e usuário na mesma query (sem uma consulta por oferta)
     @Query("select o from OfertaModel o join fetch o.imovel join fetch o.usuario "
         + "where o.usuario.id = :usuarioId order by o.dataCriacao desc")
