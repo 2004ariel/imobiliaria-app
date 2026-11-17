@@ -1,19 +1,20 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CurrencyPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { ActivatedRoute, ParamMap, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { ImovelService } from '../../services/imovel.service';
 import { BairroService } from '../../services/bairro.service';
 import { TipoImovelService } from '../../services/tipo-imovel.service';
 import { Bairro, FiltrosImovel, Imovel, TipoImovel } from '../../models/imovel';
 import { ErroApi } from '../../models/erro-api';
-import { classeStatus, rotuloStatus, ehAluguel, precoPrincipal } from '../../utils/imovel-util';
+import { AuthService } from '../../services/auth.service';
+import { FavoritoService } from '../../services/favorito.service';
+import { ImovelCard } from '../../components/imovel-card/imovel-card';
 
 const TAMANHO_PAGINA = 9;
 
 @Component({
   selector: 'app-imoveis-lista',
-  imports: [CurrencyPipe, ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, ImovelCard],
   templateUrl: './imoveis-lista.html',
   styleUrl: './imoveis-lista.scss'
 })
@@ -23,6 +24,8 @@ export class ImoveisLista implements OnInit {
   private tipoService = inject(TipoImovelService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private auth = inject(AuthService);
+  private favoritoService = inject(FavoritoService);
 
   imoveis = signal<Imovel[]>([]);
   carregando = signal(true);
@@ -48,14 +51,11 @@ export class ImoveisLista implements OnInit {
     sort: new FormControl('', { nonNullable: true })
   });
 
-  // funções usadas no template
-  ehAluguel = ehAluguel;
-  precoPrincipal = precoPrincipal;
-  classeStatus = classeStatus;
-  rotuloStatus = rotuloStatus;
-
   ngOnInit(): void {
     this.carregarSelects();
+    if (this.auth.ehCliente()) {
+      this.favoritoService.carregarIds(); // para os corações dos cards
+    }
 
     // a query string é a fonte da verdade: mudou a URL (filtro, página ou botão voltar) -> busca de novo
     this.route.queryParamMap.subscribe((params) => {
@@ -110,10 +110,6 @@ export class ImoveisLista implements OnInit {
         this.carregando.set(false);
       }
     });
-  }
-
-  urlCapa(nomeArquivo: string): string {
-    return this.imovelService.urlArquivo(nomeArquivo);
   }
 
   // botão "Filtrar" e select de ordenação: volta para a primeira página

@@ -44,8 +44,14 @@ export class Login implements OnInit {
     const { email, senha } = this.form.getRawValue();
     this.auth.login(email, senha).subscribe({
       next: () => {
-        // cada perfil vai para a sua área inicial
-        this.router.navigate([this.auth.getRole() === 'ADMIN' ? '/admin' : '/cliente']);
+        // volta para a página que pediu o login (ex.: detalhe do imóvel); senão, área do perfil.
+        // só aceita caminho interno ("/..."), nunca outro site
+        const voltar = this.route.snapshot.queryParamMap.get('voltar');
+        if (voltar && voltar.startsWith('/') && !voltar.startsWith('//')) {
+          this.router.navigateByUrl(voltar);
+        } else {
+          this.router.navigate([this.auth.getRole() === 'ADMIN' ? '/admin' : '/cliente']);
+        }
       },
       error: (e: ErroApi) => {
         this.erro.set(e.mensagem);

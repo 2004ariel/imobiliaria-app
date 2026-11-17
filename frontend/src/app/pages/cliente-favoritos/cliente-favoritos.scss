@@ -1,0 +1,15 @@
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.favorito {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  app-imovel-card {
+    flex: 1;
+  }
+}

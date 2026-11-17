@@ -61,4 +61,20 @@ nav {
   .menu {
     padding: 12px 16px;
   }
+
+  // celular: links ocupam a linha de baixo inteira e quebram sem estourar
+  nav {
+    width: 100%;
+    gap: 4px 14px;
+  }
+
+  .usuario {
+    max-width: 100%;
+    flex-basis: 100%;
+    order: 1;
+  }
+
+  .btn-sair {
+    order: 2;
+  }
 }

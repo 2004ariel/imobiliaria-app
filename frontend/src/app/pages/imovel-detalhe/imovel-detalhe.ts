@@ -1,11 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CurrencyPipe, DecimalPipe } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ImovelService } from '../../services/imovel.service';
 import { FotoImovel, Imovel } from '../../models/imovel';
 import { ErroApi } from '../../models/erro-api';
-import { classeStatus, rotuloStatus, ehAluguel, precoPrincipal } from '../../utils/imovel-util';
+import { AuthService } from '../../services/auth.service';
+import { FavoritoService } from '../../services/favorito.service';
+import { OfertaService } from '../../services/oferta.service';
+import { TipoOferta } from '../../models/oferta';
+import { classeStatusImovel, rotuloStatusImovel, rotuloTipoOferta } from '../../models/rotulos';
+import { ehAluguel, precoPrincipal } from '../../utils/imovel-util';
 
 @Component({
   selector: 'app-imovel-detalhe',
@@ -16,6 +21,10 @@ import { classeStatus, rotuloStatus, ehAluguel, precoPrincipal } from '../../uti
 export class ImovelDetalhe implements OnInit {
   private imovelService = inject(ImovelService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private ofertaService = inject(OfertaService);
+  auth = inject(AuthService);
+  favoritos = inject(FavoritoService);
 
   imovel = signal<Imovel | null>(null);
   carregando = signal(true);
@@ -37,10 +46,25 @@ export class ImovelDetalhe implements OnInit {
   sucessoEnvio = signal('');
   erroEnvio = signal('');
 
+  // fazer oferta (só cliente logado em imóvel DISPONIVEL)
+  oferta = new FormGroup({
+    tipo: new FormControl<TipoOferta>('VENDA', { nonNullable: true, validators: [Validators.required] }),
+    valorProposto: new FormControl<number | null>(null, { validators: [Validators.required, Validators.min(0.01)] }),
+    mensagem: new FormControl('', { nonNullable: true })
+  });
+  mostrarOferta = signal(false);
+  enviandoOferta = signal(false);
+  erroOferta = signal('');
+
+  // favorito (coração)
+  salvandoFavorito = signal(false);
+  erroFavorito = signal('');
+
   ehAluguel = ehAluguel;
   precoPrincipal = precoPrincipal;
-  classeStatus = classeStatus;
-  rotuloStatus = rotuloStatus;
+  classeStatus = classeStatusImovel;
+  rotuloStatus = rotuloStatusImovel;
+  rotuloTipo = rotuloTipoOferta;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -54,6 +78,10 @@ export class ImovelDetalhe implements OnInit {
       next: (imovel) => {
         this.imovel.set(imovel);
         this.contato.controls.mensagem.setValue(this.mensagemPadrao(imovel));
+        const tipos = this.tiposDeOferta(imovel);
+        if (tipos.length > 0) {
+          this.oferta.controls.tipo.setValue(tipos[0]);
+        }
         this.carregando.set(false);
       },
       error: (e: ErroApi) => {
@@ -61,6 +89,10 @@ export class ImovelDetalhe implements OnInit {
         this.carregando.set(false);
       }
     });
+
+    if (this.auth.ehCliente()) {
+      this.favoritos.carregarIds();
+    }
 
     this.imovelService.getFotos(id).subscribe({
       next: (fotos) => {
@@ -106,6 +138,52 @@ export class ImovelDetalhe implements OnInit {
       error: () => {
         this.erroEnvio.set('Não foi possível enviar. Tente novamente.');
         this.enviando.set(false);
+      }
+    });
+  }
+
+  // só os tipos que têm preço no imóvel
+  tiposDeOferta(imovel: Imovel): TipoOferta[] {
+    const tipos: TipoOferta[] = [];
+    if (imovel.precoVenda && imovel.precoVenda > 0) tipos.push('VENDA');
+    if (imovel.precoAluguel && imovel.precoAluguel > 0) tipos.push('ALUGUEL');
+    return tipos;
+  }
+
+  enviarOferta(): void {
+    const imovel = this.imovel();
+    if (!imovel) return;
+    if (this.oferta.invalid) {
+      this.oferta.markAllAsTouched();
+      return;
+    }
+
+    this.enviandoOferta.set(true);
+    this.erroOferta.set('');
+
+    const { tipo, valorProposto, mensagem } = this.oferta.getRawValue();
+    this.ofertaService.criar({ imovelId: imovel.id, tipo, valorProposto: Number(valorProposto), mensagem }).subscribe({
+      next: () => this.router.navigate(['/cliente/ofertas'], { queryParams: { enviada: 1 } }),
+      error: (e: ErroApi) => {
+        // 409 traz a regra de negócio do backend (ex.: oferta pendente repetida)
+        this.erroOferta.set(e.mensagem);
+        this.enviandoOferta.set(false);
+      }
+    });
+  }
+
+  alternarFavorito(imovelId: number): void {
+    const acao = this.favoritos.ehFavorito(imovelId)
+      ? this.favoritos.remover(imovelId)
+      : this.favoritos.adicionar(imovelId);
+
+    this.salvandoFavorito.set(true);
+    this.erroFavorito.set('');
+    acao.subscribe({
+      next: () => this.salvandoFavorito.set(false),
+      error: () => {
+        this.erroFavorito.set('Não foi possível atualizar os favoritos.');
+        this.salvandoFavorito.set(false);
       }
     });
   }

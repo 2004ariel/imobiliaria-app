@@ -1,0 +1,47 @@
+<article class="card">
+  <a class="card-link" [routerLink]="['/imoveis', imovel().id]">
+    @if (imovel().fotoCapa; as capa) {
+      <img class="foto-capa" [src]="urlCapa(capa)" [alt]="imovel().titulo" loading="lazy" />
+    } @else {
+      <div class="foto-placeholder">Sem foto</div>
+    }
+    <div class="card-corpo">
+      <div class="selos">
+        @if (imovel().finalidade) {
+          <span class="finalidade">{{ imovel().finalidade }}</span>
+        }
+        <span class="selo-status" [class]="classeStatus(imovel().status)">{{ rotuloStatus(imovel().status) }}</span>
+      </div>
+      <h3>{{ imovel().titulo }}</h3>
+      <p class="tipo">{{ imovel().tipoImovel?.nome ?? 'Tipo não informado' }}</p>
+      <p class="bairro">
+        {{ imovel().bairro?.nome ?? 'Bairro não informado' }}@if (imovel().bairro?.cidade) {, {{ imovel().bairro?.cidade }}}
+      </p>
+      <p class="preco">
+        @if (precoPrincipal(imovel()); as preco) {
+          {{ preco | currency: 'BRL' }}@if (ehAluguel(imovel())) { /mês}
+        } @else {
+          Preço sob consulta
+        }
+      </p>
+    </div>
+  </a>
+
+  <!-- coração fica fora do link (botão dentro de <a> não é válido) -->
+  @if (auth.ehCliente()) {
+    <button
+      type="button"
+      class="btn-favorito"
+      [class.ativo]="favoritos.ehFavorito(imovel().id)"
+      [attr.aria-pressed]="favoritos.ehFavorito(imovel().id)"
+      [attr.aria-label]="favoritos.ehFavorito(imovel().id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+      [title]="favoritos.ehFavorito(imovel().id) ? 'Remover dos favoritos' : 'Adicionar aos favoritos'"
+      [disabled]="salvando()"
+      (click)="alternarFavorito()">
+      {{ favoritos.ehFavorito(imovel().id) ? '♥' : '♡' }}
+    </button>
+  }
+  @if (erroFavorito()) {
+    <p class="erro-favorito">{{ erroFavorito() }}</p>
+  }
+</article>

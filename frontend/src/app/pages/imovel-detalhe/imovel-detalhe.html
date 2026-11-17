@@ -33,7 +33,22 @@
         <span class="texto-suave">Código {{ imovel.id }}</span>
       </div>
 
-      <h2>{{ imovel.titulo }}</h2>
+      <div class="titulo-linha">
+        <h2>{{ imovel.titulo }}</h2>
+        @if (auth.ehCliente()) {
+          <button
+            type="button"
+            class="btn btn-secundario btn-favorito"
+            [attr.aria-pressed]="favoritos.ehFavorito(imovel.id)"
+            [disabled]="salvandoFavorito()"
+            (click)="alternarFavorito(imovel.id)">
+            {{ favoritos.ehFavorito(imovel.id) ? '♥ Favorito' : '♡ Favoritar' }}
+          </button>
+        }
+      </div>
+      @if (erroFavorito()) {
+        <p class="msg msg-erro">{{ erroFavorito() }}</p>
+      }
       <p class="texto-suave">
         {{ imovel.tipoImovel?.nome ?? 'Tipo não informado' }} ·
         {{ imovel.bairro?.nome ?? 'Bairro não informado' }}@if (imovel.bairro?.cidade) {, {{ imovel.bairro?.cidade }}/{{ imovel.bairro?.estado }}}
@@ -79,53 +94,111 @@
       }
     </section>
 
-    <!-- contato -->
-    <aside class="form-card contato">
-      <h3>Entrar em contato</h3>
+    <aside class="lateral">
+      <!-- oferta: cliente em imóvel disponível; visitante é convidado a entrar; admin não vê -->
+      @if (imovel.status === 'DISPONIVEL' && auth.getRole() !== 'ADMIN') {
+        <section class="form-card oferta">
+          <h3>Fazer oferta</h3>
 
-      @if (sucessoEnvio()) {
-        <p class="msg msg-sucesso">{{ sucessoEnvio() }}</p>
+          @if (!auth.usuario()) {
+            <p>
+              <a [routerLink]="['/login']" [queryParams]="{ voltar: '/imoveis/' + imovel.id }">Entre para fazer uma oferta</a>
+            </p>
+          } @else if (auth.ehCliente()) {
+            @if (tiposDeOferta(imovel).length === 0) {
+              <p class="texto-suave">Este imóvel ainda não tem preço para receber ofertas.</p>
+            } @else if (!mostrarOferta()) {
+              <button type="button" class="btn" (click)="mostrarOferta.set(true)">Fazer oferta</button>
+            } @else {
+              @if (erroOferta()) {
+                <p class="msg msg-erro">{{ erroOferta() }}</p>
+              }
+
+              <form [formGroup]="oferta" (ngSubmit)="enviarOferta()" novalidate>
+                <div class="campo">
+                  <label for="tipoOferta">Tipo</label>
+                  <select id="tipoOferta" formControlName="tipo">
+                    @for (tipo of tiposDeOferta(imovel); track tipo) {
+                      <option [value]="tipo">{{ rotuloTipo(tipo) }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="campo">
+                  <label for="valorProposto">Valor proposto (R$)</label>
+                  <input id="valorProposto" type="number" min="0.01" step="0.01" inputmode="decimal" formControlName="valorProposto" />
+                  @if (oferta.controls.valorProposto.touched && oferta.controls.valorProposto.hasError('required')) {
+                    <small class="erro-campo">Informe o valor.</small>
+                  } @else if (oferta.controls.valorProposto.touched && oferta.controls.valorProposto.hasError('min')) {
+                    <small class="erro-campo">O valor precisa ser maior que zero.</small>
+                  }
+                </div>
+
+                <div class="campo">
+                  <label for="mensagemOferta">Mensagem (opcional)</label>
+                  <textarea id="mensagemOferta" rows="3" formControlName="mensagem"></textarea>
+                </div>
+
+                <div class="botoes">
+                  <button type="submit" class="btn" [disabled]="enviandoOferta()">
+                    {{ enviandoOferta() ? 'Enviando...' : 'Enviar oferta' }}
+                  </button>
+                  <button type="button" class="btn btn-secundario" (click)="mostrarOferta.set(false)">Fechar</button>
+                </div>
+              </form>
+            }
+          }
+        </section>
       }
-      @if (erroEnvio()) {
-        <p class="msg msg-erro">{{ erroEnvio() }}</p>
-      }
 
-      <form [formGroup]="contato" (ngSubmit)="enviarContato()" novalidate>
-        <div class="campo">
-          <label for="nome">Nome</label>
-          <input id="nome" type="text" formControlName="nome" autocomplete="name" />
-          @if (contato.controls.nome.touched && contato.controls.nome.hasError('required')) {
-            <small class="erro-campo">Informe o nome.</small>
-          }
-        </div>
+      <!-- contato -->
+      <section class="form-card contato">
+        <h3>Entrar em contato</h3>
 
-        <div class="campo">
-          <label for="email">E-mail</label>
-          <input id="email" type="email" formControlName="email" autocomplete="email" />
-          @if (contato.controls.email.touched && contato.controls.email.hasError('required')) {
-            <small class="erro-campo">Informe o e-mail.</small>
-          } @else if (contato.controls.email.touched && contato.controls.email.hasError('email')) {
-            <small class="erro-campo">E-mail inválido.</small>
-          }
-        </div>
+        @if (sucessoEnvio()) {
+          <p class="msg msg-sucesso">{{ sucessoEnvio() }}</p>
+        }
+        @if (erroEnvio()) {
+          <p class="msg msg-erro">{{ erroEnvio() }}</p>
+        }
 
-        <div class="campo">
-          <label for="telefone">Telefone (opcional)</label>
-          <input id="telefone" type="tel" formControlName="telefone" autocomplete="tel" />
-        </div>
+        <form [formGroup]="contato" (ngSubmit)="enviarContato()" novalidate>
+          <div class="campo">
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" formControlName="nome" autocomplete="name" />
+            @if (contato.controls.nome.touched && contato.controls.nome.hasError('required')) {
+              <small class="erro-campo">Informe o nome.</small>
+            }
+          </div>
 
-        <div class="campo">
-          <label for="mensagem">Mensagem</label>
-          <textarea id="mensagem" rows="5" formControlName="mensagem"></textarea>
-          @if (contato.controls.mensagem.touched && contato.controls.mensagem.hasError('required')) {
-            <small class="erro-campo">Escreva uma mensagem.</small>
-          }
-        </div>
+          <div class="campo">
+            <label for="email">E-mail</label>
+            <input id="email" type="email" formControlName="email" autocomplete="email" />
+            @if (contato.controls.email.touched && contato.controls.email.hasError('required')) {
+              <small class="erro-campo">Informe o e-mail.</small>
+            } @else if (contato.controls.email.touched && contato.controls.email.hasError('email')) {
+              <small class="erro-campo">E-mail inválido.</small>
+            }
+          </div>
 
-        <button type="submit" class="btn" [disabled]="enviando()">
-          {{ enviando() ? 'Enviando...' : 'Enviar' }}
-        </button>
-      </form>
+          <div class="campo">
+            <label for="telefone">Telefone (opcional)</label>
+            <input id="telefone" type="tel" formControlName="telefone" autocomplete="tel" />
+          </div>
+
+          <div class="campo">
+            <label for="mensagem">Mensagem</label>
+            <textarea id="mensagem" rows="5" formControlName="mensagem"></textarea>
+            @if (contato.controls.mensagem.touched && contato.controls.mensagem.hasError('required')) {
+              <small class="erro-campo">Escreva uma mensagem.</small>
+            }
+          </div>
+
+          <button type="submit" class="btn" [disabled]="enviando()">
+            {{ enviando() ? 'Enviando...' : 'Enviar' }}
+          </button>
+        </form>
+      </section>
     </aside>
   </div>
 }

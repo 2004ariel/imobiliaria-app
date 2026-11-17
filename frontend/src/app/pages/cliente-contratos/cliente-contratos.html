@@ -1,0 +1,66 @@
+<h2>Contratos</h2>
+
+@if (aviso()) {
+  <p class="msg msg-sucesso">{{ aviso() }}</p>
+}
+
+@if (carregando()) {
+  <p class="aviso">Carregando contratos...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (contratos().length === 0) {
+  <p class="aviso">Você ainda não tem contratos. Quando uma oferta sua for aceita e o contrato aprovado, ele aparece aqui.</p>
+} @else {
+  <ul class="lista-itens">
+    @for (contrato of contratos(); track contrato.id) {
+      <li class="item-card">
+        <div class="item-topo">
+          <div>
+            <h3><a [routerLink]="['/imoveis', contrato.oferta.imovel.id]">{{ contrato.oferta.imovel.titulo }}</a></h3>
+            <span class="texto-suave">
+              Contrato nº {{ contrato.id }} · {{ contrato.oferta.imovel.bairro?.nome ?? 'Bairro não informado' }}
+            </span>
+          </div>
+          <span class="selo-status" [class]="classeStatus(contrato.status)">{{ rotuloStatus(contrato.status) }}</span>
+        </div>
+
+        <dl class="item-dados">
+          <div><dt>Tipo</dt><dd>{{ rotuloTipo(contrato.oferta.tipo) }}</dd></div>
+          <div>
+            <dt>Valor</dt>
+            <dd>{{ contrato.oferta.valorProposto | currency: 'BRL' }}@if (contrato.oferta.tipo === 'ALUGUEL') { /mês}</dd>
+          </div>
+          <div><dt>Aprovado em</dt><dd>{{ contrato.dataAprovacao ? (contrato.dataAprovacao | date: 'dd/MM/yyyy HH:mm') : '—' }}</dd></div>
+          <div><dt>Assinado em</dt><dd>{{ contrato.dataAssinatura ? (contrato.dataAssinatura | date: 'dd/MM/yyyy HH:mm') : '—' }}</dd></div>
+        </dl>
+
+        <div class="item-acoes">
+          <button type="button" class="btn btn-secundario" [disabled]="baixandoId() === contrato.id" (click)="baixarPdf(contrato.id)">
+            {{ baixandoId() === contrato.id ? 'Abrindo...' : 'Baixar PDF' }}
+          </button>
+
+          @if (contrato.status === 'AGUARDANDO_ASSINATURA') {
+            @if (confirmandoId() === contrato.id) {
+              <div class="confirmacao" role="alert">
+                <p>Assinar este contrato? Leia o PDF antes. Depois de assinado não dá para desfazer.</p>
+                <button type="button" class="btn" [disabled]="assinandoId() === contrato.id" (click)="assinar(contrato.id)">
+                  {{ assinandoId() === contrato.id ? 'Assinando...' : 'Sim, assinar' }}
+                </button>
+                <button type="button" class="btn btn-secundario" [disabled]="assinandoId() === contrato.id" (click)="confirmandoId.set(null)">
+                  Voltar
+                </button>
+              </div>
+            } @else {
+              <button type="button" class="btn" (click)="pedirConfirmacao(contrato.id)">Assinar contrato</button>
+            }
+          }
+        </div>
+
+        @if (erroAcao()?.id === contrato.id) {
+          <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+        }
+      </li>
+    }
+  </ul>
+}

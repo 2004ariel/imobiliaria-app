@@ -1,0 +1,24 @@
+<h2>Favoritos</h2>
+
+@if (carregando()) {
+  <p class="aviso">Carregando favoritos...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (visiveis().length === 0) {
+  <p class="aviso">Você ainda não tem imóveis favoritos. Toque no ♡ de um imóvel na <a routerLink="/">vitrine</a> para guardar aqui.</p>
+} @else {
+  <div class="cards">
+    @for (imovel of visiveis(); track imovel.id) {
+      <div class="favorito">
+        <app-imovel-card [imovel]="imovel" />
+        <button type="button" class="btn btn-secundario" [disabled]="removendoId() === imovel.id" (click)="remover(imovel.id)">
+          {{ removendoId() === imovel.id ? 'Removendo...' : 'Remover dos favoritos' }}
+        </button>
+        @if (erroRemover()?.id === imovel.id) {
+          <p class="msg msg-erro">{{ erroRemover()?.mensagem }}</p>
+        }
+      </div>
+    }
+  </div>
+}

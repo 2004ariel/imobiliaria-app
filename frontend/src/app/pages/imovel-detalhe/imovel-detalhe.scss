@@ -106,9 +106,44 @@
   white-space: pre-line;
 }
 
-.contato {
+.lateral {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.contato,
+.oferta {
   max-width: none;
   margin: 0;
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+// no form-card o .btn ocupa a largura toda; aqui os dois botões dividem a linha
+.botoes {
+  display: flex;
+  gap: 8px;
+
+  .btn {
+    flex: 1;
+  }
+}
+
+.titulo-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.btn-favorito {
+  padding: 6px 14px;
+  color: #b00020;
 }
 
 .aviso {

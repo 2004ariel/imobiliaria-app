@@ -77,33 +77,7 @@
 
   <div class="cards">
     @for (imovel of imoveis(); track imovel.id) {
-      <a class="card" [routerLink]="['/imoveis', imovel.id]">
-        @if (imovel.fotoCapa) {
-          <img class="foto-capa" [src]="urlCapa(imovel.fotoCapa)" [alt]="imovel.titulo" loading="lazy" />
-        } @else {
-          <div class="foto-placeholder">Sem foto</div>
-        }
-        <div class="card-corpo">
-          <div class="selos">
-            @if (imovel.finalidade) {
-              <span class="finalidade">{{ imovel.finalidade }}</span>
-            }
-            <span class="selo-status" [class]="classeStatus(imovel.status)">{{ rotuloStatus(imovel.status) }}</span>
-          </div>
-          <h3>{{ imovel.titulo }}</h3>
-          <p class="tipo">{{ imovel.tipoImovel?.nome ?? 'Tipo não informado' }}</p>
-          <p class="bairro">
-            {{ imovel.bairro?.nome ?? 'Bairro não informado' }}@if (imovel.bairro?.cidade) {, {{ imovel.bairro?.cidade }}}
-          </p>
-          <p class="preco">
-            @if (precoPrincipal(imovel); as preco) {
-              {{ preco | currency: 'BRL' }}@if (ehAluguel(imovel)) { /mês}
-            } @else {
-              Preço sob consulta
-            }
-          </p>
-        </div>
-      </a>
+      <app-imovel-card [imovel]="imovel" />
     }
   </div>
 

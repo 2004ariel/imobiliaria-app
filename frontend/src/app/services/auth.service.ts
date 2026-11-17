@@ -43,6 +43,10 @@ export class AuthService {
     return this.usuario()?.role ?? null;
   }
 
+  ehCliente(): boolean {
+    return ROLES_CLIENTE.includes(this.getRole() ?? '');
+  }
+
   // relê o token para considerar a expiração; token vencido = deslogado
   isLogado(): boolean {
     const usuario = this.lerUsuarioDoToken();

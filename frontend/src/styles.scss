@@ -185,3 +185,106 @@ a {
     font-weight: bold;
   }
 }
+
+/* selos de oferta e contrato (cores extras; textos em models/rotulos.ts) */
+.status-andamento {
+  background: #e8f0fe;
+  color: #1f3a5f;
+}
+
+.status-negativo {
+  background: #fdecea;
+  color: #b00020;
+}
+
+/* estados das telas: carregando, vazio, erro */
+.aviso {
+  padding: 16px;
+  color: #555;
+}
+
+.aviso.erro {
+  color: #b00020;
+  background: #fdecea;
+  border-radius: 8px;
+}
+
+/* listas da área do cliente (ofertas, contratos): um card por item, sem tabela */
+.lista-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.item-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.item-topo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.item-dados {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px 16px;
+  margin: 12px 0 0;
+
+  dt {
+    color: #666;
+    font-size: 0.85rem;
+  }
+
+  dd {
+    margin: 0;
+    font-weight: bold;
+  }
+}
+
+.item-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* confirmação inline (no lugar do window.confirm) */
+.confirmacao {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #fff4d6;
+
+  p {
+    margin: 0;
+    flex-basis: 100%;
+  }
+}
+
+.btn-perigo {
+  background: #b00020;
+
+  &:hover {
+    background: #8c0019;
+  }
+}

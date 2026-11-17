@@ -1,0 +1,61 @@
+<h2>Minhas ofertas</h2>
+
+@if (aviso()) {
+  <p class="msg msg-sucesso">{{ aviso() }}</p>
+}
+
+@if (carregando()) {
+  <p class="aviso">Carregando ofertas...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (ofertas().length === 0) {
+  <p class="aviso">Você ainda não fez nenhuma oferta. <a routerLink="/">Ver imóveis</a></p>
+} @else {
+  <ul class="lista-itens">
+    @for (oferta of ofertas(); track oferta.id) {
+      <li class="item-card">
+        <div class="item-topo">
+          <div>
+            <h3><a [routerLink]="['/imoveis', oferta.imovel.id]">{{ oferta.imovel.titulo }}</a></h3>
+            <span class="texto-suave">
+              {{ oferta.imovel.tipoImovel?.nome ?? 'Imóvel' }} · {{ oferta.imovel.bairro?.nome ?? 'Bairro não informado' }}
+            </span>
+          </div>
+          <span class="selo-status" [class]="classeStatus(oferta.status)">{{ rotuloStatus(oferta.status) }}</span>
+        </div>
+
+        <dl class="item-dados">
+          <div><dt>Tipo</dt><dd>{{ rotuloTipo(oferta.tipo) }}</dd></div>
+          <div>
+            <dt>Valor proposto</dt>
+            <dd>{{ oferta.valorProposto | currency: 'BRL' }}@if (oferta.tipo === 'ALUGUEL') { /mês}</dd>
+          </div>
+          <div><dt>Data</dt><dd>{{ oferta.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</dd></div>
+        </dl>
+
+        @if (oferta.status === 'PENDENTE') {
+          <div class="item-acoes">
+            @if (confirmandoId() === oferta.id) {
+              <div class="confirmacao" role="alert">
+                <p>Cancelar esta oferta? Depois de cancelada ela não pode ser reativada.</p>
+                <button type="button" class="btn btn-perigo" [disabled]="cancelandoId() === oferta.id" (click)="cancelar(oferta.id)">
+                  {{ cancelandoId() === oferta.id ? 'Cancelando...' : 'Sim, cancelar' }}
+                </button>
+                <button type="button" class="btn btn-secundario" [disabled]="cancelandoId() === oferta.id" (click)="confirmandoId.set(null)">
+                  Voltar
+                </button>
+              </div>
+            } @else {
+              <button type="button" class="btn btn-secundario" (click)="pedirConfirmacao(oferta.id)">Cancelar oferta</button>
+            }
+          </div>
+        }
+
+        @if (erroAcao()?.id === oferta.id) {
+          <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+        }
+      </li>
+    }
+  </ul>
+}
