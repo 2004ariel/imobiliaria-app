@@ -1,0 +1,105 @@
+<h2>Bairros</h2>
+
+@if (aviso()) {
+  <p class="msg msg-sucesso">{{ aviso() }}</p>
+}
+
+<form class="form-painel" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+  <h3>{{ editandoId() ? 'Editar bairro' : 'Novo bairro' }}</h3>
+
+  @if (erroForm()) {
+    <p class="msg msg-erro">{{ erroForm() }}</p>
+  }
+
+  <div class="form-grid">
+    <div class="campo">
+      <label for="nome">Nome *</label>
+      <input id="nome" type="text" formControlName="nome" />
+      @if (form.controls.nome.touched && form.controls.nome.invalid) {
+        <small class="erro-campo">Informe o nome.</small>
+      }
+    </div>
+    <div class="campo">
+      <label for="cidade">Cidade *</label>
+      <input id="cidade" type="text" formControlName="cidade" />
+      @if (form.controls.cidade.touched && form.controls.cidade.invalid) {
+        <small class="erro-campo">Informe a cidade.</small>
+      }
+    </div>
+    <div class="campo">
+      <label for="estado">Estado (UF) *</label>
+      <input id="estado" type="text" maxlength="2" formControlName="estado" placeholder="RS" />
+      @if (form.controls.estado.touched && form.controls.estado.hasError('required')) {
+        <small class="erro-campo">Informe o estado.</small>
+      } @else if (form.controls.estado.touched && form.controls.estado.hasError('pattern')) {
+        <small class="erro-campo">Use as 2 letras do estado (ex.: RS).</small>
+      }
+    </div>
+    <div class="campo">
+      <label for="cepInicial">CEP inicial</label>
+      <input id="cepInicial" type="text" inputmode="numeric" formControlName="cepInicial" placeholder="98280-000" />
+      @if (form.controls.cepInicial.touched && form.controls.cepInicial.invalid) {
+        <small class="erro-campo">CEP no formato 00000-000.</small>
+      }
+    </div>
+    <div class="campo">
+      <label for="cepFinal">CEP final</label>
+      <input id="cepFinal" type="text" inputmode="numeric" formControlName="cepFinal" placeholder="98280-999" />
+      @if (form.controls.cepFinal.touched && form.controls.cepFinal.invalid) {
+        <small class="erro-campo">CEP no formato 00000-000.</small>
+      }
+    </div>
+  </div>
+
+  <div class="form-acoes">
+    <button type="submit" class="btn" [disabled]="salvando()">
+      {{ salvando() ? 'Salvando...' : (editandoId() ? 'Salvar alterações' : 'Cadastrar') }}
+    </button>
+    @if (editandoId()) {
+      <button type="button" class="btn btn-secundario" (click)="cancelarEdicao()">Cancelar edição</button>
+    }
+  </div>
+</form>
+
+@if (carregando()) {
+  <p class="aviso">Carregando bairros...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (bairros().length === 0) {
+  <p class="aviso">Nenhum bairro cadastrado ainda.</p>
+} @else {
+  <table class="tabela">
+    <thead>
+      <tr><th>Nome</th><th>Cidade</th><th>CEP</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      @for (bairro of bairros(); track bairro.id) {
+        <tr>
+          <td data-label="Nome">{{ bairro.nome }}</td>
+          <td data-label="Cidade">{{ bairro.cidade }}/{{ bairro.estado }}</td>
+          <td data-label="CEP">{{ bairro.cepInicial || '—' }}@if (bairro.cepFinal) { a {{ bairro.cepFinal }}}</td>
+          <td class="sem-rotulo col-acoes">
+            @if (confirmandoId() === bairro.id) {
+              <div class="confirmacao" role="alert">
+                <p>Excluir o bairro "{{ bairro.nome }}"?</p>
+                <button type="button" class="btn btn-perigo" [disabled]="excluindoId() === bairro.id" (click)="excluir(bairro)">
+                  {{ excluindoId() === bairro.id ? 'Excluindo...' : 'Sim, excluir' }}
+                </button>
+                <button type="button" class="btn btn-secundario" (click)="confirmandoId.set(null)">Voltar</button>
+              </div>
+            } @else {
+              <div class="acoes-linha">
+                <button type="button" class="btn btn-secundario" (click)="editar(bairro)">Editar</button>
+                <button type="button" class="btn btn-secundario" (click)="pedirExclusao(bairro.id)">Excluir</button>
+              </div>
+            }
+            @if (erroAcao()?.id === bairro.id) {
+              <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

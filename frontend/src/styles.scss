@@ -430,3 +430,59 @@ a {
     }
   }
 }
+
+/* formulários largos do admin (cadastro/edição): campos em grade, 1 coluna no celular */
+.form-painel {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0 16px;
+}
+
+.campo-largo {
+  grid-column: 1 / -1;
+}
+
+.campo-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  input {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.form-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dica {
+  display: block;
+  margin-top: 4px;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.topo-pagina {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}

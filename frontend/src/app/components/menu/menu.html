@@ -9,6 +9,8 @@
         <a routerLink="/admin" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }">Painel</a>
         <a routerLink="/admin/ofertas" routerLinkActive="ativo">Ofertas</a>
         <a routerLink="/admin/contratos" routerLinkActive="ativo">Contratos</a>
+        <a routerLink="/admin/bairros" routerLinkActive="ativo">Bairros</a>
+        <a routerLink="/admin/tipos" routerLinkActive="ativo">Tipos</a>
       } @else if (auth.ehCliente()) {
         <a routerLink="/cliente/ofertas" routerLinkActive="ativo">Minhas ofertas</a>
         <a routerLink="/cliente/favoritos" routerLinkActive="ativo">Favoritos</a>

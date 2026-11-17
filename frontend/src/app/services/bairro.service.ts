@@ -12,4 +12,18 @@ export class BairroService {
   getAll(): Observable<Bairro[]> {
     return this.http.get<Bairro[]>(this.url);
   }
+
+  // ---- admin ----
+
+  criar(bairro: Omit<Bairro, 'id'>): Observable<void> {
+    return this.http.post<void>(this.url, bairro);
+  }
+
+  atualizar(id: number, bairro: Omit<Bairro, 'id'>): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}`, bairro);
+  }
+
+  excluir(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
 }

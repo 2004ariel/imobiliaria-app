@@ -12,4 +12,18 @@ export class TipoImovelService {
   getAll(): Observable<TipoImovel[]> {
     return this.http.get<TipoImovel[]>(this.url);
   }
+
+  // ---- admin ----
+
+  criar(tipo: Omit<TipoImovel, 'id'>): Observable<void> {
+    return this.http.post<void>(this.url, tipo);
+  }
+
+  atualizar(id: number, tipo: Omit<TipoImovel, 'id'>): Observable<void> {
+    return this.http.put<void>(`${this.url}/${id}`, tipo);
+  }
+
+  excluir(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.url}/${id}`);
+  }
 }

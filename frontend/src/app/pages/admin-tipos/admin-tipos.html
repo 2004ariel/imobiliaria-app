@@ -1,0 +1,78 @@
+<h2>Tipos de imóveis</h2>
+
+@if (aviso()) {
+  <p class="msg msg-sucesso">{{ aviso() }}</p>
+}
+
+<form class="form-painel" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+  <h3>{{ editandoId() ? 'Editar tipo' : 'Novo tipo' }}</h3>
+
+  @if (erroForm()) {
+    <p class="msg msg-erro">{{ erroForm() }}</p>
+  }
+
+  <div class="form-grid">
+    <div class="campo">
+      <label for="nome">Nome *</label>
+      <input id="nome" type="text" formControlName="nome" placeholder="Ex.: Apartamento" />
+      @if (form.controls.nome.touched && form.controls.nome.invalid) {
+        <small class="erro-campo">Informe o nome.</small>
+      }
+    </div>
+    <div class="campo">
+      <label for="descricao">Descrição</label>
+      <input id="descricao" type="text" formControlName="descricao" />
+    </div>
+  </div>
+
+  <div class="form-acoes">
+    <button type="submit" class="btn" [disabled]="salvando()">
+      {{ salvando() ? 'Salvando...' : (editandoId() ? 'Salvar alterações' : 'Cadastrar') }}
+    </button>
+    @if (editandoId()) {
+      <button type="button" class="btn btn-secundario" (click)="cancelarEdicao()">Cancelar edição</button>
+    }
+  </div>
+</form>
+
+@if (carregando()) {
+  <p class="aviso">Carregando tipos...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (tipos().length === 0) {
+  <p class="aviso">Nenhum tipo cadastrado ainda.</p>
+} @else {
+  <table class="tabela">
+    <thead>
+      <tr><th>Nome</th><th>Descrição</th><th>Ações</th></tr>
+    </thead>
+    <tbody>
+      @for (tipo of tipos(); track tipo.id) {
+        <tr>
+          <td data-label="Nome">{{ tipo.nome }}</td>
+          <td data-label="Descrição">{{ tipo.descricao || '—' }}</td>
+          <td class="sem-rotulo col-acoes">
+            @if (confirmandoId() === tipo.id) {
+              <div class="confirmacao" role="alert">
+                <p>Excluir o tipo "{{ tipo.nome }}"?</p>
+                <button type="button" class="btn btn-perigo" [disabled]="excluindoId() === tipo.id" (click)="excluir(tipo)">
+                  {{ excluindoId() === tipo.id ? 'Excluindo...' : 'Sim, excluir' }}
+                </button>
+                <button type="button" class="btn btn-secundario" (click)="confirmandoId.set(null)">Voltar</button>
+              </div>
+            } @else {
+              <div class="acoes-linha">
+                <button type="button" class="btn btn-secundario" (click)="editar(tipo)">Editar</button>
+                <button type="button" class="btn btn-secundario" (click)="pedirExclusao(tipo.id)">Excluir</button>
+              </div>
+            }
+            @if (erroAcao()?.id === tipo.id) {
+              <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+}

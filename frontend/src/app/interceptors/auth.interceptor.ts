@@ -23,6 +23,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
       if (err.status === 0) {
         mensagem = 'Não foi possível conectar ao servidor. Tente novamente mais tarde.';
+      } else if (err.status === 400) {
+        // validação do nosso backend vem como {status, error} em português;
+        // o 400 padrão do Spring (com "path") vem em inglês, então fica o texto genérico
+        const corpo = err.error;
+        mensagem = corpo?.error && !corpo?.path ? corpo.error : 'Dados inválidos. Confira os campos e tente novamente.';
       } else if (err.status === 401 && rotaPublica) {
         mensagem = 'E-mail ou senha inválidos.';
       } else if (err.status === 401) {
