@@ -15,6 +15,7 @@ import { AdminTipos } from './pages/admin-tipos/admin-tipos';
 import { AdminImoveis } from './pages/admin-imoveis/admin-imoveis';
 import { AdminImovelForm } from './pages/admin-imovel-form/admin-imovel-form';
 import { AdminFotos } from './pages/admin-fotos/admin-fotos';
+import { AdminUsuarios } from './pages/admin-usuarios/admin-usuarios';
 import { authGuard, roleGuard } from './guards/auth.guard';
 import { ROLES_CLIENTE } from './services/auth.service';
 
@@ -53,7 +54,8 @@ export const routes: Routes = [
       { path: 'imoveis/:id/editar', component: AdminImovelForm },
       { path: 'fotos', component: AdminFotos },
       { path: 'bairros', component: AdminBairros },
-      { path: 'tipos', component: AdminTipos }
+      { path: 'tipos', component: AdminTipos },
+      { path: 'usuarios', component: AdminUsuarios }
     ]
   },
 
