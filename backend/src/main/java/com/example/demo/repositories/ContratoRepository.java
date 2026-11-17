@@ -16,6 +16,10 @@ public interface ContratoRepository extends JpaRepository<ContratoModel, Integer
     // "ativo" = qualquer status diferente de CANCELADO
     boolean existsByOfertaIdAndStatusNot(Integer ofertaId, StatusContrato status);
 
+    // ids das ofertas (entre as informadas) que já têm contrato não cancelado
+    @Query("select c.oferta.id from ContratoModel c where c.oferta.id in :ids and c.status <> :cancelado")
+    List<Integer> ofertasComContrato(@Param("ids") List<Integer> ids, @Param("cancelado") StatusContrato cancelado);
+
     // admin: todos, com filtro opcional por status (null = todos)
     @Query(value = "select c from ContratoModel c join fetch c.oferta o join fetch o.imovel join fetch o.usuario "
             + "where (:status is null or c.status = :status)",

@@ -8,4 +8,5 @@ export interface Contrato {
   status: StatusContrato;
   dataAprovacao: string | null;
   dataAssinatura: string | null;
+  emailEnviado?: boolean | null; // só vem na resposta do "aprovar"
 }

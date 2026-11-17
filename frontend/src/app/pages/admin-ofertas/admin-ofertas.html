@@ -1,0 +1,138 @@
+<h2>Ofertas</h2>
+
+<div class="barra-filtro">
+  <div class="campo">
+    <label for="filtroStatus">Situação</label>
+    <select id="filtroStatus" [value]="status()" (change)="filtrar($any($event.target).value)">
+      <option value="">Todas</option>
+      @for (opcao of opcoesStatus; track opcao.valor) {
+        <option [value]="opcao.valor">{{ opcao.rotulo }}</option>
+      }
+    </select>
+  </div>
+  @if (!carregando() && !erro()) {
+    <span class="texto-suave">{{ totalElementos() }} oferta(s)</span>
+  }
+</div>
+
+@if (aviso()) {
+  <p class="msg msg-sucesso">
+    {{ aviso() }}
+    @if (aviso().startsWith('Contrato')) { <a routerLink="/admin/contratos">Ir para Contratos</a> }
+  </p>
+}
+
+@if (carregando()) {
+  <p class="aviso">Carregando ofertas...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (ofertas().length === 0) {
+  <p class="aviso">{{ status() ? 'Nenhuma oferta com essa situação.' : 'Nenhuma oferta recebida ainda.' }}</p>
+} @else {
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th>Cliente</th>
+        <th>Imóvel</th>
+        <th>Tipo</th>
+        <th>Valor</th>
+        <th>Data</th>
+        <th>Situação</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (oferta of ofertas(); track oferta.id) {
+        <tr>
+          <td data-label="Cliente">
+            <span>{{ oferta.usuario.nome }}<span class="sub">{{ oferta.usuario.email }}</span></span>
+          </td>
+          <td data-label="Imóvel">
+            <span>
+              <a [routerLink]="['/imoveis', oferta.imovel.id]">{{ oferta.imovel.titulo }}</a>
+              <span class="sub">Código {{ oferta.imovel.id }} · {{ oferta.imovel.bairro?.nome ?? 'sem bairro' }}</span>
+            </span>
+          </td>
+          <td data-label="Tipo">{{ rotuloTipo(oferta.tipo) }}</td>
+          <td data-label="Valor">{{ oferta.valorProposto | currency: 'BRL' }}@if (oferta.tipo === 'ALUGUEL') {/mês}</td>
+          <td data-label="Data">{{ oferta.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td data-label="Situação">
+            <span class="selo-status" [class]="classeStatus(oferta.status)">{{ rotuloStatus(oferta.status) }}</span>
+          </td>
+          <td class="sem-rotulo col-acoes">
+            <!-- pendente: aceitar ou recusar, com confirmação -->
+            @if (oferta.status === 'PENDENTE') {
+              @if (confirmando()?.id === oferta.id) {
+                <div class="confirmacao" role="alert">
+                  <p>
+                    @if (confirmando()?.acao === 'aceitar') {
+                      Aceitar esta oferta? O imóvel fica Reservado e as outras ofertas pendentes dele vão para "Em espera".
+                    } @else {
+                      Recusar esta oferta?
+                    }
+                  </p>
+                  <button
+                    type="button"
+                    class="btn"
+                    [class.btn-perigo]="confirmando()?.acao === 'recusar'"
+                    [disabled]="processandoId() === oferta.id"
+                    (click)="confirmar(oferta)">
+                    {{ processandoId() === oferta.id ? 'Enviando...' : (confirmando()?.acao === 'aceitar' ? 'Sim, aceitar' : 'Sim, recusar') }}
+                  </button>
+                  <button type="button" class="btn btn-secundario" [disabled]="processandoId() === oferta.id" (click)="confirmando.set(null)">
+                    Voltar
+                  </button>
+                </div>
+              } @else {
+                <div class="acoes-linha">
+                  <button type="button" class="btn" (click)="pedirConfirmacao(oferta.id, 'aceitar')">Aceitar</button>
+                  <button type="button" class="btn btn-secundario" (click)="pedirConfirmacao(oferta.id, 'recusar')">Recusar</button>
+                </div>
+              }
+            }
+
+            <!-- aceita e ainda sem contrato: preparar contrato com o PDF -->
+            @if (oferta.status === 'ACEITA' && !oferta.temContrato) {
+              @if (preparandoId() === oferta.id) {
+                <div class="confirmacao">
+                  <label for="pdf-{{ oferta.id }}"><strong>PDF do contrato</strong></label>
+                  <input id="pdf-{{ oferta.id }}" type="file" accept="application/pdf,.pdf" (change)="escolherArquivo($event)" />
+                  @if (erroArquivo()) {
+                    <p class="msg-erro-inline">{{ erroArquivo() }}</p>
+                  }
+                  <button type="button" class="btn" [disabled]="!arquivo() || processandoId() === oferta.id" (click)="enviarContrato(oferta)">
+                    {{ processandoId() === oferta.id ? 'Enviando...' : 'Enviar contrato' }}
+                  </button>
+                  <button type="button" class="btn btn-secundario" [disabled]="processandoId() === oferta.id" (click)="preparandoId.set(null)">
+                    Fechar
+                  </button>
+                </div>
+              } @else {
+                <button type="button" class="btn" (click)="abrirContrato(oferta.id)">Preparar contrato</button>
+              }
+            } @else if (oferta.status === 'ACEITA') {
+              <a routerLink="/admin/contratos">Ver contrato</a>
+            }
+
+            @if (oferta.status !== 'PENDENTE' && oferta.status !== 'ACEITA') {
+              <span class="texto-suave">—</span>
+            }
+
+            @if (erroAcao()?.id === oferta.id) {
+              <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (totalPaginas() > 1) {
+    <nav class="paginacao">
+      <button type="button" class="btn" [disabled]="pagina() === 0" (click)="irParaPagina(pagina() - 1)">‹ Anterior</button>
+      <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+      <button type="button" class="btn" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">Próxima ›</button>
+    </nav>
+  }
+}

@@ -1,0 +1,127 @@
+<h2>Contratos</h2>
+
+<div class="barra-filtro">
+  <div class="campo">
+    <label for="filtroStatus">Status</label>
+    <select id="filtroStatus" [value]="status()" (change)="filtrar($any($event.target).value)">
+      <option value="">Todos</option>
+      @for (opcao of opcoesStatus; track opcao.valor) {
+        <option [value]="opcao.valor">{{ opcao.rotulo }}</option>
+      }
+    </select>
+  </div>
+  @if (!carregando() && !erro()) {
+    <span class="texto-suave">{{ totalElementos() }} contrato(s)</span>
+  }
+</div>
+
+@if (aviso(); as aviso) {
+  <p class="msg" [class.msg-sucesso]="aviso.tipo === 'sucesso'" [class.msg-aviso]="aviso.tipo === 'atencao'">{{ aviso.texto }}</p>
+}
+
+@if (carregando()) {
+  <p class="aviso">Carregando contratos...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (contratos().length === 0) {
+  <p class="aviso">
+    {{ status() ? 'Nenhum contrato com esse status.' : 'Nenhum contrato ainda.' }}
+    Contratos são preparados a partir de uma oferta aceita em <a routerLink="/admin/ofertas">Ofertas</a>.
+  </p>
+} @else {
+  <table class="tabela">
+    <thead>
+      <tr>
+        <th>Nº</th>
+        <th>Imóvel</th>
+        <th>Cliente</th>
+        <th>Tipo</th>
+        <th>Valor da oferta</th>
+        <th>Status</th>
+        <th>Aprovado em</th>
+        <th>Assinado em</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (contrato of contratos(); track contrato.id) {
+        <tr>
+          <td data-label="Nº">{{ contrato.id }}</td>
+          <td data-label="Imóvel">
+            <span>
+              <a [routerLink]="['/imoveis', contrato.oferta.imovel.id]">{{ contrato.oferta.imovel.titulo }}</a>
+              <span class="sub">Código {{ contrato.oferta.imovel.id }}</span>
+            </span>
+          </td>
+          <td data-label="Cliente">
+            <span>{{ contrato.oferta.usuario.nome }}<span class="sub">{{ contrato.oferta.usuario.email }}</span></span>
+          </td>
+          <td data-label="Tipo">{{ rotuloTipo(contrato.oferta.tipo) }}</td>
+          <td data-label="Valor da oferta">
+            {{ contrato.oferta.valorProposto | currency: 'BRL' }}@if (contrato.oferta.tipo === 'ALUGUEL') {/mês}
+          </td>
+          <td data-label="Status">
+            <span class="selo-status" [class]="classeStatus(contrato.status)">{{ rotuloStatus(contrato.status) }}</span>
+            @if (podeAprovar(contrato)) {
+              <span class="sub">não aprovado</span>
+            }
+          </td>
+          <td data-label="Aprovado em">{{ contrato.dataAprovacao ? (contrato.dataAprovacao | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+          <td data-label="Assinado em">{{ contrato.dataAssinatura ? (contrato.dataAssinatura | date: 'dd/MM/yyyy HH:mm') : '—' }}</td>
+          <td class="sem-rotulo col-acoes">
+            @if (confirmando()?.id === contrato.id) {
+              <div class="confirmacao" role="alert">
+                <p>
+                  @if (confirmando()?.acao === 'aprovar') {
+                    Aprovar este contrato? O cliente passa a vê-lo e recebe um e-mail para assinar.
+                  } @else {
+                    {{ rotuloCancelar(contrato) }}? O contrato e a oferta são cancelados, o imóvel volta a Disponível
+                    e as ofertas em espera voltam a Pendente.
+                  }
+                </p>
+                <button
+                  type="button"
+                  class="btn"
+                  [class.btn-perigo]="confirmando()?.acao === 'cancelar'"
+                  [disabled]="processandoId() === contrato.id"
+                  (click)="confirmar(contrato)">
+                  {{ processandoId() === contrato.id ? 'Enviando...' : (confirmando()?.acao === 'aprovar' ? 'Sim, aprovar' : 'Sim, ' + rotuloCancelar(contrato).toLowerCase()) }}
+                </button>
+                <button type="button" class="btn btn-secundario" [disabled]="processandoId() === contrato.id" (click)="confirmando.set(null)">
+                  Voltar
+                </button>
+              </div>
+            } @else {
+              <div class="acoes-linha">
+                <button type="button" class="btn btn-secundario" [disabled]="baixandoId() === contrato.id" (click)="baixarPdf(contrato.id)">
+                  {{ baixandoId() === contrato.id ? 'Abrindo...' : 'Baixar PDF' }}
+                </button>
+                @if (podeAprovar(contrato)) {
+                  <button type="button" class="btn" (click)="pedirConfirmacao(contrato.id, 'aprovar')">Aprovar</button>
+                }
+                @if (podeCancelar(contrato)) {
+                  <button type="button" class="btn btn-secundario" (click)="pedirConfirmacao(contrato.id, 'cancelar')">
+                    {{ rotuloCancelar(contrato) }}
+                  </button>
+                }
+              </div>
+            }
+
+            @if (erroAcao()?.id === contrato.id) {
+              <p class="msg msg-erro">{{ erroAcao()?.mensagem }}</p>
+            }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  @if (totalPaginas() > 1) {
+    <nav class="paginacao">
+      <button type="button" class="btn" [disabled]="pagina() === 0" (click)="irParaPagina(pagina() - 1)">‹ Anterior</button>
+      <span>Página {{ pagina() + 1 }} de {{ totalPaginas() }}</span>
+      <button type="button" class="btn" [disabled]="pagina() + 1 >= totalPaginas()" (click)="irParaPagina(pagina() + 1)">Próxima ›</button>
+    </nav>
+  }
+}

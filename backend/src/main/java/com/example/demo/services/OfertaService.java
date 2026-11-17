@@ -1,6 +1,7 @@
 package com.example.demo.services;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -13,10 +14,12 @@ import com.example.demo.dtos.OfertaDTO;
 import com.example.demo.exceptions.RegraNegocioException;
 import com.example.demo.models.ImovelModel;
 import com.example.demo.models.OfertaModel;
+import com.example.demo.models.StatusContrato;
 import com.example.demo.models.StatusImovel;
 import com.example.demo.models.StatusOferta;
 import com.example.demo.models.TipoOferta;
 import com.example.demo.models.UserModel;
+import com.example.demo.repositories.ContratoRepository;
 import com.example.demo.repositories.ImovelRepository;
 import com.example.demo.repositories.OfertaRepository;
 
@@ -27,11 +30,14 @@ public class OfertaService {
     private final OfertaRepository repository;
     private final ImovelRepository imovelRepository;
     private final UserService userService;
+    private final ContratoRepository contratoRepository;
 
-    public OfertaService(OfertaRepository repository, ImovelRepository imovelRepository, UserService userService) {
+    public OfertaService(OfertaRepository repository, ImovelRepository imovelRepository, UserService userService,
+            ContratoRepository contratoRepository) {
         this.repository = repository;
         this.imovelRepository = imovelRepository;
         this.userService = userService;
+        this.contratoRepository = contratoRepository;
     }
 
     @Transactional
@@ -86,7 +92,22 @@ public class OfertaService {
 
     @Transactional(readOnly = true)
     public Page<OfertaModel> todas(StatusOferta status, Pageable pageable) {
-        return repository.buscarTodas(status, pageable);
+        Page<OfertaModel> pagina = repository.buscarTodas(status, pageable);
+        preencherTemContrato(pagina.getContent());
+        return pagina;
+    }
+
+    // uma query só para a página inteira: quais ofertas já têm contrato (o admin não prepara outro)
+    private void preencherTemContrato(List<OfertaModel> ofertas) {
+        if (ofertas.isEmpty()) return;
+        List<Integer> ids = new ArrayList<>();
+        for (OfertaModel oferta : ofertas) {
+            ids.add(oferta.getId());
+        }
+        List<Integer> comContrato = contratoRepository.ofertasComContrato(ids, StatusContrato.CANCELADO);
+        for (OfertaModel oferta : ofertas) {
+            oferta.setTemContrato(comContrato.contains(oferta.getId()));
+        }
     }
 
     // regra 4: aceita esta, reserva o imóvel e põe as outras pendentes em espera

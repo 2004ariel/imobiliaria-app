@@ -68,3 +68,7 @@ export function classeStatusContrato(status: string): string {
 export function rotuloTipoOferta(tipo: string): string {
   return TIPO_OFERTA[tipo] ?? tipo;
 }
+
+// opções dos filtros do admin (ordem do fluxo)
+export const OPCOES_STATUS_OFERTA = Object.entries(STATUS_OFERTA).map(([valor, rotulo]) => ({ valor, rotulo }));
+export const OPCOES_STATUS_CONTRATO = Object.entries(STATUS_CONTRATO).map(([valor, rotulo]) => ({ valor, rotulo }));

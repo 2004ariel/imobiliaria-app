@@ -6,7 +6,9 @@
 
     @if (auth.usuario(); as usuario) {
       @if (usuario.role === 'ADMIN') {
-        <a routerLink="/admin" routerLinkActive="ativo">Painel</a>
+        <a routerLink="/admin" routerLinkActive="ativo" [routerLinkActiveOptions]="{ exact: true }">Painel</a>
+        <a routerLink="/admin/ofertas" routerLinkActive="ativo">Ofertas</a>
+        <a routerLink="/admin/contratos" routerLinkActive="ativo">Contratos</a>
       } @else if (auth.ehCliente()) {
         <a routerLink="/cliente/ofertas" routerLinkActive="ativo">Minhas ofertas</a>
         <a routerLink="/cliente/favoritos" routerLinkActive="ativo">Favoritos</a>

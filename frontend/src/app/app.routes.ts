@@ -8,6 +8,8 @@ import { NaoEncontrado } from './pages/nao-encontrado/nao-encontrado';
 import { ClienteOfertas } from './pages/cliente-ofertas/cliente-ofertas';
 import { ClienteFavoritos } from './pages/cliente-favoritos/cliente-favoritos';
 import { ClienteContratos } from './pages/cliente-contratos/cliente-contratos';
+import { AdminOfertas } from './pages/admin-ofertas/admin-ofertas';
+import { AdminContratos } from './pages/admin-contratos/admin-contratos';
 import { AdminInicio } from './pages/admin-inicio/admin-inicio';
 import { authGuard, roleGuard } from './guards/auth.guard';
 import { ROLES_CLIENTE } from './services/auth.service';
@@ -33,7 +35,16 @@ export const routes: Routes = [
       { path: 'contratos', component: ClienteContratos }
     ]
   },
-  { path: 'admin', component: AdminInicio, canActivate: [authGuard, roleGuard], data: { roles: ['ADMIN'] } },
+  {
+    path: 'admin',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ADMIN'] },
+    children: [
+      { path: '', component: AdminInicio },
+      { path: 'ofertas', component: AdminOfertas },
+      { path: 'contratos', component: AdminContratos }
+    ]
+  },
 
   { path: '**', component: NaoEncontrado }
 ];

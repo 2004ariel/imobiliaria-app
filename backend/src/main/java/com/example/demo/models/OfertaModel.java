@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -61,6 +62,10 @@ public class OfertaModel implements Serializable {
     @CreationTimestamp
     @Column(name = "data_criacao", updatable = false)
     private LocalDateTime dataCriacao;
+
+    // só na listagem do admin: se a oferta já tem contrato ativo (não é coluna)
+    @Transient
+    private Boolean temContrato;
 
     @Override
     public int hashCode() {

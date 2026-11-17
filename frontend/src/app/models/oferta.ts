@@ -15,14 +15,23 @@ export interface ImovelResumo {
   bairro: Bairro | null;
 }
 
+// quem fez a oferta (o backend não manda a senha)
+export interface ClienteResumo {
+  id: number;
+  nome: string;
+  email: string;
+}
+
 export interface Oferta {
   id: number;
   imovel: ImovelResumo;
+  usuario: ClienteResumo;
   tipo: TipoOferta;
   valorProposto: number;
   mensagem: string | null;
   status: StatusOferta;
   dataCriacao: string;
+  temContrato?: boolean; // só vem na listagem do admin
 }
 
 // corpo do POST /ofertas (o usuário vai pelo token)

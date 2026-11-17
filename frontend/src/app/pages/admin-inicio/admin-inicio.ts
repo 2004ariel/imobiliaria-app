@@ -1,10 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { UsuarioService } from '../../services/usuario.service';
 import { ErroApi } from '../../models/erro-api';
 
 @Component({
   selector: 'app-admin-inicio',
+  imports: [RouterLink],
   templateUrl: './admin-inicio.html'
 })
 export class AdminInicio implements OnInit {
