@@ -1,6 +1,7 @@
 package com.example.demo.repositories;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import com.example.demo.models.ImovelModel;
+import com.example.demo.models.StatusImovel;
 
 public interface ImovelRepository extends JpaRepository<ImovelModel, Integer> {
 
@@ -32,4 +34,18 @@ public interface ImovelRepository extends JpaRepository<ImovelModel, Integer> {
         @Param("aluguelMin") BigDecimal aluguelMin,
         @Param("aluguelMax") BigDecimal aluguelMax,
         Pageable pageable);
+
+    // ---- painel do admin ----
+
+    long countByStatus(StatusImovel status);
+
+    // [nome do bairro, total]; bairro sem imóvel aparece com 0
+    @Query("select b.nome, count(i) from BairroModel b left join ImovelModel i on i.bairro = b "
+        + "group by b.id, b.nome order by count(i) desc, b.nome")
+    List<Object[]> contarPorBairro();
+
+    // [finalidade, total]; upper() junta "venda" e "VENDA" (a coluna ainda é texto livre)
+    @Query("select upper(i.finalidade), count(i) from ImovelModel i where i.finalidade is not null "
+        + "group by upper(i.finalidade) order by count(i) desc")
+    List<Object[]> contarPorFinalidade();
 }

@@ -1,0 +1,49 @@
+// 3 cartões lado a lado; no celular empilham
+.totais {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin: 16px 0 24px;
+
+  .card-resumo {
+    min-width: 0;
+  }
+}
+
+.graficos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.grafico-card {
+  min-width: 0; // deixa o canvas encolher dentro do grid
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+
+  h3 {
+    margin: 0 0 12px;
+    font-size: 1.05rem;
+  }
+}
+
+// o Chart.js precisa de um pai com altura definida (maintainAspectRatio: false)
+.grafico-area {
+  position: relative;
+  height: 280px;
+}
+
+.sem-dados {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+  margin: 0;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  color: #666;
+  text-align: center;
+  padding: 16px;
+}

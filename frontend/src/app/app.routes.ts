@@ -10,7 +10,6 @@ import { ClienteFavoritos } from './pages/cliente-favoritos/cliente-favoritos';
 import { ClienteContratos } from './pages/cliente-contratos/cliente-contratos';
 import { AdminOfertas } from './pages/admin-ofertas/admin-ofertas';
 import { AdminContratos } from './pages/admin-contratos/admin-contratos';
-import { AdminInicio } from './pages/admin-inicio/admin-inicio';
 import { authGuard, roleGuard } from './guards/auth.guard';
 import { ROLES_CLIENTE } from './services/auth.service';
 
@@ -40,7 +39,8 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { roles: ['ADMIN'] },
     children: [
-      { path: '', component: AdminInicio },
+      // carregado sob demanda: o Chart.js (pesado) só baixa para quem abre o painel
+      { path: '', loadComponent: () => import('./pages/admin-inicio/admin-inicio').then((m) => m.AdminInicio) },
       { path: 'ofertas', component: AdminOfertas },
       { path: 'contratos', component: AdminContratos }
     ]

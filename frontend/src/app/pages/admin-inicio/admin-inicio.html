@@ -1,18 +1,65 @@
 <h2>Painel admin</h2>
 <p>Bem-vindo(a), <strong>{{ auth.usuario()?.email }}</strong>.</p>
 
-<div class="cards-resumo">
-  <div class="card-resumo">
-    <span class="rotulo">Usuários cadastrados</span>
-    @if (carregando()) {
-      <span class="texto-suave">Carregando...</span>
-    } @else if (erro()) {
-      <span class="msg-erro-inline">{{ erro() }}</span>
-    } @else {
-      <span class="valor">{{ totalUsuarios() }}</span>
-    }
+@if (carregando()) {
+  <p class="aviso">Carregando painel...</p>
+} @else if (erro()) {
+  <p class="aviso erro">{{ erro() }}</p>
+  <button type="button" class="btn btn-secundario" (click)="carregar()">Tentar de novo</button>
+} @else if (painel(); as painel) {
+  <div class="totais">
+    <a class="card-resumo atalho" routerLink="/">
+      <span class="rotulo">Imóveis disponíveis</span>
+      <span class="valor">{{ painel.totais.imoveisDisponiveis }}</span>
+    </a>
+    <a class="card-resumo atalho" routerLink="/admin/ofertas">
+      <span class="rotulo">Ofertas pendentes</span>
+      <span class="valor">{{ painel.totais.ofertasPendentes }}</span>
+    </a>
+    <a class="card-resumo atalho" routerLink="/admin/contratos">
+      <span class="rotulo">Contratos aguardando assinatura</span>
+      <span class="valor">{{ painel.totais.contratosAguardandoAssinatura }}</span>
+    </a>
   </div>
-</div>
+
+  <div class="graficos">
+    <section class="grafico-card">
+      <h3>Imóveis por bairro</h3>
+      @if (graficoBairros(); as dados) {
+        <div class="grafico-area">
+          <canvas baseChart type="bar" [data]="dados" [options]="opcoesBarras" role="img"
+            [attr.aria-label]="'Imóveis por bairro: ' + resumo(dados)"></canvas>
+        </div>
+      } @else {
+        <p class="sem-dados">Nenhum imóvel cadastrado em bairros ainda.</p>
+      }
+    </section>
+
+    <section class="grafico-card">
+      <h3>Ofertas por situação</h3>
+      @if (graficoOfertas(); as dados) {
+        <div class="grafico-area">
+          <canvas baseChart type="doughnut" [data]="dados" [options]="opcoesOfertas" role="img"
+            [attr.aria-label]="'Ofertas por situação: ' + resumo(dados)"></canvas>
+        </div>
+      } @else {
+        <p class="sem-dados">Nenhuma oferta recebida ainda.</p>
+      }
+    </section>
+
+    <section class="grafico-card">
+      <h3>Imóveis por finalidade</h3>
+      @if (graficoFinalidade(); as dados) {
+        <div class="grafico-area">
+          <canvas baseChart type="pie" [data]="dados" [options]="opcoesFinalidade" role="img"
+            [attr.aria-label]="'Imóveis por finalidade: ' + resumo(dados)"></canvas>
+        </div>
+      } @else {
+        <p class="sem-dados">Nenhum imóvel com finalidade informada.</p>
+      }
+    </section>
+  </div>
+}
 
 <h3>Atalhos</h3>
 <div class="cards-resumo">
@@ -25,5 +72,3 @@
     <span class="rotulo">Aprovar, cancelar e baixar PDFs</span>
   </a>
 </div>
-
-<p class="texto-suave">Em breve: painel com totais e gráficos.</p>

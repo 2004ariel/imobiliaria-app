@@ -21,6 +21,11 @@ const STATUS_CONTRATO: Record<string, string> = {
   CANCELADO: 'Cancelado'
 };
 
+const FINALIDADE: Record<string, string> = {
+  VENDA: 'Venda',
+  ALUGUEL: 'Aluguel'
+};
+
 const TIPO_OFERTA: Record<string, string> = {
   VENDA: 'Compra',
   ALUGUEL: 'Aluguel'
@@ -68,6 +73,24 @@ export function classeStatusContrato(status: string): string {
 export function rotuloTipoOferta(tipo: string): string {
   return TIPO_OFERTA[tipo] ?? tipo;
 }
+
+export function rotuloFinalidade(finalidade: string): string {
+  return FINALIDADE[finalidade] ?? finalidade;
+}
+
+// cores dos gráficos do painel (mesma ideia dos selos, em tom mais forte para o gráfico)
+export const COR_GRAFICO_STATUS_OFERTA: Record<string, string> = {
+  PENDENTE: '#d49b00',
+  ACEITA: '#1a7f37',
+  EM_ESPERA: '#3b6db3',
+  RECUSADA: '#b00020',
+  CANCELADA: '#8a8f98'
+};
+
+export const COR_GRAFICO_FINALIDADE: Record<string, string> = {
+  VENDA: '#1f3a5f',
+  ALUGUEL: '#e07a1f'
+};
 
 // opções dos filtros do admin (ordem do fluxo)
 export const OPCOES_STATUS_OFERTA = Object.entries(STATUS_OFERTA).map(([valor, rotulo]) => ({ valor, rotulo }));

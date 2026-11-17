@@ -29,4 +29,12 @@ public interface OfertaRepository extends JpaRepository<OfertaModel, Integer> {
             + "where (:status is null or o.status = :status)",
         countQuery = "select count(o) from OfertaModel o where (:status is null or o.status = :status)")
     Page<OfertaModel> buscarTodas(@Param("status") StatusOferta status, Pageable pageable);
+
+    // ---- painel do admin ----
+
+    long countByStatus(StatusOferta status);
+
+    // [status, total] só dos status que têm oferta
+    @Query("select o.status, count(o) from OfertaModel o group by o.status")
+    List<Object[]> contarPorStatus();
 }

@@ -30,4 +30,7 @@ public interface ContratoRepository extends JpaRepository<ContratoModel, Integer
     @Query("select c from ContratoModel c join fetch c.oferta o join fetch o.imovel join fetch o.usuario "
         + "where o.usuario.id = :usuarioId and c.dataAprovacao is not null order by c.dataAprovacao desc")
     List<ContratoModel> buscarAprovadosDoUsuario(@Param("usuarioId") Long usuarioId);
+
+    // painel do admin
+    long countByStatus(StatusContrato status);
 }

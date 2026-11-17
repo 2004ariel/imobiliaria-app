@@ -61,7 +61,7 @@ public class SecurityConfig {
                 // fotos: ver é público (detalhe do imóvel), upload só ADMIN
                 .requestMatchers(HttpMethod.GET, "/fotos-imoveis/imovel/*", "/fotos-imoveis/arquivo/*").permitAll()
 
-                .requestMatchers("/users/**", "/fotos-imoveis/**", "/email/**").hasRole("ADMIN")
+                .requestMatchers("/users/**", "/fotos-imoveis/**", "/email/**", "/painel/**").hasRole("ADMIN")
                 .anyRequest().authenticated())
             .exceptionHandling(ex -> ex
                 // sem token, token inválido ou expirado
